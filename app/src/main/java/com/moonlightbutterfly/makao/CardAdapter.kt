@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class CardAdapter : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
 
-    var dataSet: MutableList<Card> = mutableListOf()
+    private var dataSet: MutableList<Card> = mutableListOf()
     private lateinit var imageProvider: CardImageProvider
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -28,4 +28,13 @@ class CardAdapter : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
     }
 
     override fun getItemCount() = dataSet.size
+
+    fun addCard(card: Card) {
+        dataSet.add(card)
+        notifyItemInserted(dataSet.size-1)
+    }
+
+    fun removeCard(card: Card) {
+        dataSet.remove(card)
+    }
 }
