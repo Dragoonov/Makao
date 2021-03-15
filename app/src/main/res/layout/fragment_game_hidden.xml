@@ -37,8 +37,8 @@
 
         <ImageView
             android:id="@+id/top_card"
-            android:layout_width="100dp"
-            android:layout_height="154dp"
+            android:layout_width="105dp"
+            android:layout_height="162dp"
             android:src="@drawable/ace_spades"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -58,17 +58,19 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/player_deck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:translationZ="5dp"
-            android:translationY="120dp"
-            app:layout_constraintVertical_bias="1"
+        <ImageView
+            android:id="@+id/cardsAnchor"
+            android:src="@drawable/ace_spades"
+            android:layout_width="47dp"
+            android:layout_height="72dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintVertical_bias="1.0"
+            android:translationY="275dp"
+            android:visibility="invisible"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/play"

@@ -1,5 +1,6 @@
 package com.moonlightbutterfly.makao
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,8 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 
 class CardAdapter : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
+
+    val cardViewsMap = mutableMapOf<Card, ImageView>()
 
     private var dataSet: MutableList<Card> = mutableListOf()
     private lateinit var imageProvider: CardImageProvider
@@ -24,7 +27,19 @@ class CardAdapter : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
 
     // Replace the contents of a view (invoked by the layout manager)
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        viewHolder.card.setImageDrawable(imageProvider.provideCardImage(dataSet[position]))
+        val card = dataSet[position]
+        viewHolder.card.setImageDrawable(imageProvider.provideCardImage(card))
+        viewHolder.card.setOnClickListener {
+            it as ImageView
+            if (card.highlighted) {
+                it.setColorFilter(Color.argb(0, 0, 0, 0))
+                cardViewsMap.remove(card)
+            } else {
+                cardViewsMap[card] = it
+                it.setColorFilter(Color.argb(100, 255, 255, 0))
+            }
+            card.highlighted = !card.highlighted
+        }
     }
 
     override fun getItemCount() = dataSet.size
