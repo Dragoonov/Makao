@@ -13,6 +13,7 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.transition.*
@@ -24,7 +25,10 @@ class GameFragment : Fragment() {
     private lateinit var binding: FragmentGameHiddenBinding
     private var expanded = false
     private val cards: MutableList<Pair<Card, ImageView>> = mutableListOf()
+    private val johnCards: MutableList<Pair<Card, ImageView>> = mutableListOf()
+    private val arthurCards: MutableList<Pair<Card, ImageView>> = mutableListOf()
     private var cardsDistance: Float = 0f
+    private var enemiesCardsDistance: Float = 0f
     private lateinit var imageProvider: CardImageProvider
 
     private val listener: () -> View.OnTouchListener = {
@@ -63,7 +67,7 @@ class GameFragment : Fragment() {
                             val isYInside =
                                 center.second > top.y && center.second < top.y + top.height
                             if (isXInside && isYInside) {
-                                it.moveToCard(binding.topCard) {
+                                it.moveToTopStack(binding.topCard) {
                                     val movedCard = cards.first { pair -> pair.second == it }.first
                                     cards.removeIf { pair -> pair.first == movedCard }
                                     binding.topCard.setImageDrawable(
@@ -72,7 +76,7 @@ class GameFragment : Fragment() {
                                     binding.layout.removeView(it)
                                     cardsDistance = calculateCardsDistance(
                                         binding.layout.width, cardsDistance, cards.size, binding.cardsAnchor.width)
-                                    shuffleCards()
+                                    reorderHand()
                                 }
                             } else {
                                 it.moveBack(initialX, initialY)
@@ -105,18 +109,21 @@ class GameFragment : Fragment() {
         }
         imageProvider = CardImageProvider(requireContext())
         cardsDistance = binding.cardsAnchor.layoutParams.width.toFloat()
+        enemiesCardsDistance = dpToPixel(10f, requireContext())
         return binding.root
     }
 
     private fun hide() {
         updateConstraints(R.layout.fragment_game_hidden)
         cards.map { it.second }.forEach { it.hide() }
+        (johnCards + arthurCards).map { it.second }.forEach { it.enemyShow() }
         expanded = !expanded
     }
 
     private fun show() {
         updateConstraints(R.layout.fragment_game_shown)
         cards.map { it.second }.forEach { it.show() }
+        (johnCards + arthurCards).map { it.second }.forEach { it.enemyHide() }
         expanded = !expanded
     }
 
@@ -130,7 +137,7 @@ class GameFragment : Fragment() {
         TransitionManager.beginDelayedTransition(binding.layout, transition)
     }
 
-    private fun shuffleCards() {
+    private fun reorderHand() {
         val initialX = binding.cardsAnchor.width
         cards.map { it.second }.forEachIndexed { index, imageView ->
             imageView.moveX(initialX + index * cardsDistance)
@@ -151,8 +158,25 @@ class GameFragment : Fragment() {
         }
     }
 
+    private fun arthurDrawCard(card:Card) = enemyDrawCard(card, binding.arthurAnchor, -enemiesCardsDistance, arthurCards)
+
+    private fun johnDrawCard(card:Card) = enemyDrawCard(card, binding.johnAnchor, enemiesCardsDistance, johnCards)
+
+    private fun enemyDrawCard(card: Card, anchor: ImageView, distance: Float, cards: MutableList<Pair<Card, ImageView>>) {
+        val newView = ImageView(context).apply {
+            setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.blue_back))
+            z = 10.0f
+            layoutParams = ConstraintLayout.LayoutParams(anchor.layoutParams)
+        }
+        binding.layout.addView(newView)
+        cards.add(card to newView)
+        newView.animateEnemyDrawing(binding.stack, anchor, anchor.width + distance * cards.size)
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun drawCard(card: Card) {
+        arthurDrawCard(card)
+        johnDrawCard(card)
         val newView = ImageView(context).apply {
             setImageDrawable(imageProvider.provideCardImage(card))
             z = 10.0f
@@ -164,7 +188,7 @@ class GameFragment : Fragment() {
         newView.animateDrawing(binding.stack, binding.cardsAnchor, binding.cardsAnchor.width + cardsDistance * (cards.size-1)) {
             cardsDistance = calculateCardsDistance(
                 binding.layout.width, cardsDistance, cards.size, binding.cardsAnchor.width)
-            shuffleCards()
+            reorderHand()
         }
     }
 }

@@ -9,48 +9,72 @@ import android.graphics.Color
 import android.util.DisplayMetrics
 import android.widget.ImageView
 
-fun ImageView.show() = this.move(dpToPixel(-275f, context))
+fun ImageView.show() = this.translateY(dpToPixel(-275f, context))
+fun ImageView.hide() = this.translateY(dpToPixel(275f, context))
+fun ImageView.enemyHide() = this.translateY(dpToPixel(-80f, context))
+fun ImageView.enemyShow() = this.translateY(dpToPixel(80f, context))
 
-fun ImageView.hide() = this.move(dpToPixel(275f, context))
+fun ImageView.animation(
+    property: String = "",
+    sourceX: Float = this.x,
+    sourceY: Float = this.y,
+    targetX: Float = this.x,
+    targetY: Float = this.y,
+    durationAnim: Long = 1000
+): ObjectAnimator {
+    val x = PropertyValuesHolder.ofFloat(
+        if (property.isEmpty()) "x" else property + "X",
+        sourceX,
+        targetX
+    )
+    val y = PropertyValuesHolder.ofFloat(
+        if (property.isEmpty()) "y" else property + "Y",
+        sourceY,
+        targetY
+    )
+    return ObjectAnimator.ofPropertyValuesHolder(this, x, y).apply {
+        duration = durationAnim
+    }
+}
 
 fun ImageView.moveBack(initialX: Float, initialY: Float) {
-    val x = PropertyValuesHolder.ofFloat("x", this.x, initialX)
-    val y = PropertyValuesHolder.ofFloat("y", this.y, initialY)
-    val moveAnim = ObjectAnimator.ofPropertyValuesHolder(this, x, y).apply {
-        duration = 250
-    }
+    val animation = this.animation(targetX = initialX, targetY = initialY, durationAnim = 250)
     AnimatorSet().apply {
-        play(moveAnim)
+        play(animation)
         start()
     }
 }
 
 fun ImageView.moveX(targetX: Float) {
-    val x = PropertyValuesHolder.ofFloat("x", this.x, targetX)
-    val moveAnim = ObjectAnimator.ofPropertyValuesHolder(this, x).apply {
-        duration = 250
-    }
+    val animation = this.animation(targetX = targetX, durationAnim = 250)
     AnimatorSet().apply {
-        play(moveAnim)
+        play(animation)
         start()
     }
 }
 
-fun ImageView.moveToCard(card: ImageView, atEnd: () -> Unit) {
-    val x = PropertyValuesHolder.ofFloat("x", this.x, card.x + card.width/2 - this.width/2)
-    val y = PropertyValuesHolder.ofFloat("y", this.y, card.y + card.height/2 - this.height/2)
-    val scaleX = PropertyValuesHolder.ofFloat("scaleX", 1f, card.width.toFloat()/this.width)
-    val scaleY = PropertyValuesHolder.ofFloat("scaleY", 1f, card.height.toFloat()/this.height)
-    val moveAnim = ObjectAnimator.ofPropertyValuesHolder(this, x, y).apply {
-        duration = 250
-    }
-    val shrinkAnim = ObjectAnimator.ofPropertyValuesHolder(this, scaleX, scaleY).apply {
-        duration = 250
-    }
+fun ImageView.moveToTopStack(card: ImageView, atEnd: () -> Unit) {
+    val moveAnimation = animation(
+        sourceX = this.x,
+        targetX = card.x + card.width / 2 - this.width / 2,
+        sourceY = this.y,
+        targetY = card.y + card.height / 2 - this.height / 2,
+        durationAnim = 250
+    )
+    val scaleAnimation = animation(
+        property = "scale",
+        sourceX = 1f,
+        targetX = card.width.toFloat() / this.width,
+        sourceY = 1f,
+        targetY = card.height.toFloat() / this.height,
+        durationAnim = 250
+    )
     AnimatorSet().apply {
-        playTogether(moveAnim, shrinkAnim)
+        playTogether(moveAnimation, scaleAnimation)
         addListener(object : Animator.AnimatorListener {
-            override fun onAnimationEnd(animation: Animator?) { atEnd() }
+            override fun onAnimationEnd(animation: Animator?) {
+                atEnd()
+            }
             override fun onAnimationStart(animation: Animator?) {}
             override fun onAnimationCancel(animation: Animator?) {}
             override fun onAnimationRepeat(animation: Animator?) {}
@@ -68,8 +92,9 @@ fun ImageView.highlight(highlight: Boolean) {
     }
 }
 
-private fun ImageView.move(dp: Float) {
-    val translationY = PropertyValuesHolder.ofFloat("translationY", this.translationY, this.translationY + dp)
+private fun ImageView.translateY(dp: Float) {
+    val translationY =
+        PropertyValuesHolder.ofFloat("translationY", this.translationY, this.translationY + dp)
     val moveAnim = ObjectAnimator.ofPropertyValuesHolder(this, translationY).apply {
         duration = 1000
     }
@@ -79,33 +104,31 @@ private fun ImageView.move(dp: Float) {
     }
 }
 
-fun ImageView.animateDrawing(source: ImageView, target: ImageView, distance: Float, atEnd: () -> Unit = {}) {
-    val propertyX = PropertyValuesHolder.ofFloat("x", source.x, distance)
-    val propertyY = PropertyValuesHolder.ofFloat("y", source.y, target.y)
-    val propertyShrinkX = PropertyValuesHolder.ofFloat(
-        "scaleX",
-        source.width.toFloat() / target.width,
-        1f,
+fun ImageView.animateDrawing(
+    source: ImageView,
+    target: ImageView,
+    distance: Float,
+    atEnd: () -> Unit = {}
+) {
+    val moveAnimation = animation(
+        sourceX = source.x,
+        targetX = distance,
+        sourceY = source.y,
+        targetY = target.y
     )
-    val propertyShrinkY = PropertyValuesHolder.ofFloat(
-        "scaleY",
-        source.height.toFloat() / target.height,
-        1f
+    val scaleAnimation = animation(
+        property = "scale",
+        sourceX = source.width.toFloat() / target.width,
+        targetX = 1f,
+        sourceY = source.height.toFloat() / target.height,
+        targetY = 1f
     )
-    val shrinkAnim = ObjectAnimator.ofPropertyValuesHolder(
-        this,
-        propertyShrinkX,
-        propertyShrinkY
-    ).apply {
-        duration = 1000
-    }
-    val moveAnim = ObjectAnimator.ofPropertyValuesHolder(this, propertyX, propertyY).apply {
-        duration = 1000
-    }
     AnimatorSet().apply {
-        playTogether(moveAnim, shrinkAnim)
+        playTogether(moveAnimation, scaleAnimation)
         addListener(object : Animator.AnimatorListener {
-            override fun onAnimationEnd(animation: Animator?) { atEnd() }
+            override fun onAnimationEnd(animation: Animator?) {
+                atEnd()
+            }
             override fun onAnimationStart(animation: Animator?) {}
             override fun onAnimationCancel(animation: Animator?) {}
             override fun onAnimationRepeat(animation: Animator?) {}
@@ -113,4 +136,30 @@ fun ImageView.animateDrawing(source: ImageView, target: ImageView, distance: Flo
         start()
     }
 }
-fun dpToPixel(dp: Float, context: Context) = dp * context.resources.displayMetrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT
+
+fun ImageView.animateEnemyDrawing(
+    source: ImageView,
+    target: ImageView,
+    distance: Float
+) {
+    val moveAnimation = animation(
+        sourceX = source.x,
+        targetX = target.x + distance - target.width,
+        sourceY = source.y,
+        targetY = target.y
+    )
+    val scaleAnimation = animation(
+        property = "scale",
+        sourceX = source.width.toFloat() / target.width,
+        targetX = 1f,
+        sourceY = source.height.toFloat() / target.height,
+        targetY = 1f
+    )
+    AnimatorSet().apply {
+        playTogether(moveAnimation, scaleAnimation)
+        start()
+    }
+}
+
+fun dpToPixel(dp: Float, context: Context) =
+    dp * context.resources.displayMetrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT
