@@ -1,20 +1,39 @@
 package com.moonlightbutterfly.makao
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 
 class CardImageProvider(private val context: Context) {
 
     private val providersMap = mapOf(
-            CardType.DIAMONDS to DiamondsProvider(),
-            CardType.CLUBS to ClubsProvider(),
-            CardType.HEARTS to HeartsProvider(),
-            CardType.SPADES to SpadesProvider(),
+        CardType.DIAMONDS to DiamondsProvider(),
+        CardType.CLUBS to ClubsProvider(),
+        CardType.HEARTS to HeartsProvider(),
+        CardType.SPADES to SpadesProvider(),
     )
 
     fun provideCardImage(card: Card): Drawable? = providersMap[card.type]?.provideCard(card.value)
+
+    fun provideCardImageRotated(card: Card): Drawable? =
+        providersMap[card.type]?.provideCard(card.value)?.rotate()
+
+    private fun Drawable.rotate(): Drawable {
+        val arrayDrawable = arrayOf(this)
+        return object : LayerDrawable(arrayDrawable) {
+            override fun draw(canvas: Canvas) {
+                canvas.save()
+                canvas.rotate(180f, (this@rotate.bounds.width() / 2).toFloat(),
+                    (this@rotate.bounds.height() / 2).toFloat()
+                )
+                super.draw(canvas)
+                canvas.restore()
+            }
+        }
+    }
 
     private inner class DiamondsProvider : Provider {
 

@@ -39,7 +39,6 @@ class GameFragment : Fragment() {
             private var dY = 0f
 
             @SuppressLint("ClickableViewAccessibility")
-            @RequiresApi(Build.VERSION_CODES.N)
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 return when (event?.actionMasked) {
                     MotionEvent.ACTION_DOWN -> {
@@ -67,7 +66,7 @@ class GameFragment : Fragment() {
                             val isYInside =
                                 center.second > top.y && center.second < top.y + top.height
                             if (isXInside && isYInside) {
-                                it.moveToTopStack(binding.topCard) {
+                                it.align(binding.topCard) {
                                     val movedCard = cards.first { pair -> pair.second == it }.first
                                     cards.removeIf { pair -> pair.first == movedCard }
                                     binding.topCard.setImageDrawable(
@@ -76,7 +75,7 @@ class GameFragment : Fragment() {
                                     binding.layout.removeView(it)
                                     cardsDistance = calculateCardsDistance(
                                         binding.layout.width, cardsDistance, cards.size, binding.cardsAnchor.width)
-                                    reorderHand()
+                                    reorderHand(binding.cardsAnchor.width.toFloat(), cardsDistance, cards)
                                 }
                             } else {
                                 it.moveBack(initialX, initialY)
@@ -106,6 +105,18 @@ class GameFragment : Fragment() {
         val viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
         binding.play.setOnClickListener {
             drawCard(Card(CardValue.values().random(), CardType.values().random()))
+        }
+        binding.stack.setOnClickListener {
+            val value = johnCards.random()
+            value.second.enemyPutCardToStack(binding.topCard, 1000, imageProvider.provideCardImageRotated(value.first)!!) {
+                val movedCard = value.first
+                johnCards.removeIf { pair -> pair.first == movedCard }
+                binding.topCard.setImageDrawable(
+                    imageProvider.provideCardImage(movedCard)
+                )
+                binding.layout.removeView(value.second)
+                reorderHand(binding.johnAnchor.x, enemiesCardsDistance, johnCards, 250)
+            }
         }
         imageProvider = CardImageProvider(requireContext())
         cardsDistance = binding.cardsAnchor.layoutParams.width.toFloat()
@@ -137,10 +148,9 @@ class GameFragment : Fragment() {
         TransitionManager.beginDelayedTransition(binding.layout, transition)
     }
 
-    private fun reorderHand() {
-        val initialX = binding.cardsAnchor.width
+    private fun reorderHand(initialPosition: Float, distance: Float, cards: List<Pair<Card, ImageView>>, duration: Long = 1000) {
         cards.map { it.second }.forEachIndexed { index, imageView ->
-            imageView.moveX(initialX + index * cardsDistance)
+            imageView.moveX(initialPosition + index * distance, duration)
         }
     }
 
@@ -188,7 +198,7 @@ class GameFragment : Fragment() {
         newView.animateDrawing(binding.stack, binding.cardsAnchor, binding.cardsAnchor.width + cardsDistance * (cards.size-1)) {
             cardsDistance = calculateCardsDistance(
                 binding.layout.width, cardsDistance, cards.size, binding.cardsAnchor.width)
-            reorderHand()
+            reorderHand(binding.cardsAnchor.width.toFloat(), cardsDistance, cards)
         }
     }
 }
