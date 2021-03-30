@@ -4,32 +4,27 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class GameViewModel: ViewModel() {
+class GameViewModel : ViewModel() {
 
-    private val ai = AI(
-        listOf(
-            PlayerAction(Player("John", mutableListOf()),
-                mapOf(
-                    Action.DRAW_CARD to object : CardExecution {
-                        override lateinit var card: Card
-                        override fun execute() {
-                            _johnDrawCard.postValue(card)
-                        }
-                    },
-                    Action.POST_CARD to object : CardExecution {
-                        override lateinit var card: Card
-                        override fun execute() {
-                            _johnPlaceCard.postValue(card)
-                        }
-                    },
-                    Action.WIN to object : Execution {
-                        override fun execute() {
-                            _johnWon.postValue(true)
-                        }
-                    },
-                )
-            )
-        )
+    private val john = Player("John", mutableListOf())
+    private val arthur = Player("Arthur", mutableListOf())
+    private val game = Game(listOf(john, arthur))
+
+    private val actions: Map<Player, (action: Action) -> Unit> = mapOf(
+        john to {
+            when (it) {
+                is DrawCard -> _johnDrawCard.postValue(it.card)
+                is PlaceCard -> _johnPlaceCard.postValue(it.card)
+                is Win -> _johnWon.postValue(true)
+            }
+        },
+        arthur to {
+            when (it) {
+                is DrawCard -> _arthurDrawCard.postValue(it.card)
+                is PlaceCard -> _arthurPlaceCard.postValue(it.card)
+                is Win -> _arthurWon.postValue(true)
+            }
+        }
     )
 
     private val _johnDrawCard = MutableLiveData<Card>()
@@ -69,10 +64,10 @@ class GameViewModel: ViewModel() {
 
     fun onRoundFinished() {
         _switchPlayerTurn.value = false
-
+        val (player, receivedActions) = game.nextTurn()
+        receivedActions.forEach { action ->
+            actions[player]?.let { it(action) }
+        }
         _switchPlayerTurn.value = true
     }
-
-
-
 }
