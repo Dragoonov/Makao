@@ -63,7 +63,8 @@ fun ImageView.moveX(targetX: Float, durationAnim: Long) {
     }
 }
 
-fun ImageView.enemyPutCardToStack(card: ImageView, durationAnim: Long = 250, targetDrawable: Drawable,  atEnd: () -> Unit) {
+fun ImageView.placeCardOnTopAnimation(durationAnim: Long = 1000, targetDrawable: Drawable, atEnd: () -> Unit): Animator {
+    val card = rootView.findViewById<ImageView>(R.id.top_card)
     val moveAnimation = animation(
         sourceX = this.x,
         targetX = card.x + card.width / 2 - this.width / 2,
@@ -89,15 +90,15 @@ fun ImageView.enemyPutCardToStack(card: ImageView, durationAnim: Long = 250, tar
 
         addListener(object : Animator.AnimatorListener {
             override fun onAnimationEnd(animation: Animator?) {
-                this@enemyPutCardToStack.setImageDrawable(targetDrawable)
-                this@enemyPutCardToStack.rotationY = 180f
+                this@placeCardOnTopAnimation.setImageDrawable(targetDrawable)
+                this@placeCardOnTopAnimation.rotationY = 180f
             }
             override fun onAnimationStart(animation: Animator?) {}
             override fun onAnimationCancel(animation: Animator?) {}
             override fun onAnimationRepeat(animation: Animator?) {}
         })
     }
-    AnimatorSet().apply {
+    return AnimatorSet().apply {
         playTogether(moveAnimation, scaleAnimation)
         play(flip2Anim).after(flip1Anim)
         addListener(object : Animator.AnimatorListener {
@@ -109,7 +110,6 @@ fun ImageView.enemyPutCardToStack(card: ImageView, durationAnim: Long = 250, tar
             override fun onAnimationRepeat(animation: Animator?) {}
 
         })
-        start()
     }
 }
 
@@ -152,15 +152,14 @@ fun ImageView.highlight(highlight: Boolean) {
     }
 }
 
-private fun ImageView.translateY(dp: Float) {
+private fun ImageView.translateY(dp: Float): Animator {
     val translationY =
         PropertyValuesHolder.ofFloat("translationY", this.translationY, this.translationY + dp)
     val moveAnim = ObjectAnimator.ofPropertyValuesHolder(this, translationY).apply {
         duration = 1000
     }
-    AnimatorSet().apply {
+    return AnimatorSet().apply {
         play(moveAnim)
-        start()
     }
 }
 
@@ -197,11 +196,11 @@ fun ImageView.animateDrawing(
     }
 }
 
-fun ImageView.animateEnemyDrawing(
+fun ImageView.enemyDrawCardAnimation(
     source: ImageView,
     target: ImageView,
     distance: Float
-) {
+): Animator {
     val moveAnimation = animation(
         sourceX = source.x,
         targetX = target.x + distance - target.width,
@@ -215,9 +214,8 @@ fun ImageView.animateEnemyDrawing(
         sourceY = source.height.toFloat() / target.height,
         targetY = 1f
     )
-    AnimatorSet().apply {
+    return AnimatorSet().apply {
         playTogether(moveAnimation, scaleAnimation)
-        start()
     }
 }
 

@@ -6,26 +6,24 @@ import com.moonlightbutterfly.makao.ai.AIInputBundle
 class Game(private val players: List<Player>) {
     private var currentPlayer = players[0]
     private val ai = AI()
-    private val stack: MutableList<Card> = mutableListOf()
-    private val sideStack: MutableList<Card> = mutableListOf()
-    private val effects: MutableList<Card> = mutableListOf()
+    private val boardState = BoardState()
 
-    fun nextTurn(): Pair<Player, List<Action>> {
-        val output = ai.getActionsForPlayer(AIInputBundle(currentPlayer, stack, sideStack, effects))
-        currentPlayer.hand = output.bundle.player.hand
-        stack.apply {
+    fun nextTurn(): List<Action> {
+        val output = ai.getActionsForPlayer(currentPlayer, boardState)
+        currentPlayer.hand = output.third.hand
+        boardState.stack.apply {
             clear()
-            addAll(output.bundle.stack)
+            addAll(output.first.stack)
         }
-        sideStack.apply {
+        boardState.sideStack.apply {
             clear()
-            addAll(output.bundle.sideStack)
+            addAll(output.first.sideStack)
         }
-        effects.apply {
+        boardState.effects.apply {
             clear()
-            addAll(output.bundle.effects)
+            addAll(output.first.effects)
         }
         currentPlayer = players[(players.indexOf(currentPlayer) + 1) % players.size]
-        return output.bundle.player to output.actions
+        return output.second
     }
 }
