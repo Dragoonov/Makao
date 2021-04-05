@@ -18,6 +18,8 @@ class CardImageProvider(private val context: Context) {
 
     fun provideCardImage(card: Card): Drawable? = providersMap[card.type]?.provideCard(card.value)
 
+    fun provideCardBackImage(): Drawable? = ContextCompat.getDrawable(context, R.drawable.blue_back)
+
     fun provideCardImageRotated(card: Card): Drawable? =
         providersMap[card.type]?.provideCard(card.value)?.rotate()
 

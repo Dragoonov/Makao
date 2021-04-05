@@ -19,9 +19,11 @@
             android:translationY="-60dp"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.12" />
+            app:layout_constraintVertical_bias="0.12"
+            app:layout_constraintHorizontal_bias="0.05"/>
 
         <ImageView
             android:id="@+id/arthurAnchor"
@@ -29,11 +31,13 @@
             android:layout_height="77dp"
             android:src="@drawable/two_spades"
             android:translationY="-60dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.12"
-            android:visibility="invisible"/>
+            app:layout_constraintHorizontal_bias="0.95"/>
 
         <ImageView
             android:id="@+id/top_card"
@@ -65,7 +69,7 @@
             android:layout_height="72dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_bias="0.1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
