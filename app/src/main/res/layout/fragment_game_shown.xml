@@ -13,8 +13,8 @@
 
         <ImageView
             android:id="@+id/johnAnchor"
-            android:layout_width="50dp"
-            android:layout_height="77dp"
+            android:layout_width="47dp"
+            android:layout_height="72dp"
             android:src="@drawable/two_hearts"
             android:translationY="-60dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -23,12 +23,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintVertical_bias="0.0"
             app:layout_constraintHorizontal_bias="0.05"
-            android:visibility="invisible" />
+            android:visibility="visible" />
 
         <ImageView
             android:id="@+id/arthurAnchor"
-            android:layout_width="50dp"
-            android:layout_height="77dp"
+            android:layout_width="47dp"
+            android:layout_height="72dp"
             android:src="@drawable/two_spades"
             android:translationY="-60dp"
             app:layout_constraintBottom_toBottomOf="parent"

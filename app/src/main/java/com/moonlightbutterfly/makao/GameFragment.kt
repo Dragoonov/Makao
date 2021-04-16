@@ -27,11 +27,7 @@ class GameFragment : Fragment() {
     private var cardsDistance: Float = 0f
     private var enemiesCardsDistance: Float = 0f
     private lateinit var imageProvider: CardImageProvider
-
-    private val CARD_SHOWN_TRANSY by lazy { binding.cardsAnchor.y }
-    private val CARD_HIDDEN_TRANSY by lazy { CARD_SHOWN_TRANSY + dpToPixel(275f, requireContext()) }
-    private val ENEMY_CARD_HIDDEN_TRANSY by lazy { binding.arthurAnchor.y }
-    private val ENEMY_CARD_SHOWN_TRANSY by lazy { ENEMY_CARD_HIDDEN_TRANSY + dpToPixel(80f, requireContext()) }
+    private val animationChainer = AnimationChainer()
 
     private val listener: () -> View.OnTouchListener = {
         object : View.OnTouchListener {
@@ -113,15 +109,18 @@ class GameFragment : Fragment() {
             onRoundFinished()
         }
         binding.stack.setOnClickListener {
-            drawCard(Card(CardValue.values().random(), CardType.values().random()))
+            val card = Card(CardValue.values().random(), CardType.values().random())
+            arthurDrawCard(card).start()
+            johnDrawCard(card).start()
+            drawCard(card)
         }
         binding.topCard.setOnClickListener {
             onRoundFinished()
             //if (listOf(1,2).random() == 1) {
             //johnPlaceCard(johnCards.random().first).start()
             //} else {
-             //   arthurPlaceCard(arthurCards.random().first).start()
-           // }
+            //   arthurPlaceCard(arthurCards.random().first).start()
+            // }
         }
         imageProvider = CardImageProvider(requireContext())
         cardsDistance = binding.cardsAnchor.layoutParams.width.toFloat()
@@ -132,27 +131,27 @@ class GameFragment : Fragment() {
     private fun onRoundFinished() {
         val actions = viewModel.getNextTurnsActions()
         val animations = getAnimationsForActions(actions).toMutableList()
-        animations.add(0, hide())
-        animations.add(show())
-        AnimatorSet().apply {
-            playSequentially(animations)
+        animations.add(0) { hide() }
+        animations.add { show() }
+        animationChainer.apply {
+            provideAnimations(animations)
             start()
         }
     }
 
-    private fun getAnimationsForActions(actions: List<Action>): List<Animator> {
-        val animations = mutableListOf<Animator>()
+    private fun getAnimationsForActions(actions: List<Action>): List<() -> Animator> {
+        val animations = mutableListOf<() -> Animator>()
         actions.forEach {
             val animation = when (it) {
                 is DrawCard -> if (it.player.name == GameViewModel.ARTHUR) {
-                    arthurDrawCard(it.card)
+                    { arthurDrawCard(it.card) }
                 } else {
-                    johnDrawCard(it.card)
+                    { johnDrawCard(it.card) }
                 }
                 is PlaceCard -> if (it.player.name == GameViewModel.ARTHUR) {
-                    arthurPlaceCard(it.card)
+                    { arthurPlaceCard(it.card) }
                 } else {
-                    johnPlaceCard(it.card)
+                    { johnPlaceCard(it.card) }
                 }
                 else -> null
             }
@@ -222,8 +221,6 @@ class GameFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun drawCard(card: Card) {
-        arthurDrawCard(card).start()
-        johnDrawCard(card).start()
         val newView = getCardView(card)
         binding.layout.addView(newView)
         cards.add(card to newView)
@@ -250,7 +247,7 @@ class GameFragment : Fragment() {
         return newView.drawAnimation(
             binding.stack,
             anchor,
-            distance * (cards.size-1)
+            distance * (cards.size - 1)
         )
     }
 
@@ -262,12 +259,13 @@ class GameFragment : Fragment() {
         val pair = cards.find { it.first == card }
         return pair?.second?.placeCardOnTopAnimation(
             card = binding.topCard,
-            targetDrawable = imageProvider.provideCardImageRotated(pair.first)!!) {
+            targetDrawable = imageProvider.provideCardImageRotated(pair.first)!!
+        ) {
             removeCardFromBoard(cards, anchor, pair.second)
         }!!
     }
 
-    private fun getCardView(card:Card, forEnemy: Boolean = false): ImageView {
+    private fun getCardView(card: Card, forEnemy: Boolean = false): ImageView {
         return ImageView(context).apply {
             val drawable = if (forEnemy) imageProvider.provideCardBackImage() else imageProvider.provideCardImage(card)
             setImageDrawable(drawable)
@@ -276,14 +274,19 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun removeCardFromBoard(cards: MutableList<Pair<Card, ImageView>>, anchor: ImageView, card: ImageView, recalculateDistance: Boolean = false) {
+    private fun removeCardFromBoard(
+        cards: MutableList<Pair<Card, ImageView>>,
+        anchor: ImageView,
+        card: ImageView,
+        recalculateDistance: Boolean = false
+    ) {
         val movedPair = cards.first { pair -> pair.second == card }
         cards.removeIf { pair -> pair.first == movedPair.first }
         binding.topCard.setImageDrawable(
             imageProvider.provideCardImage(movedPair.first)
         )
         binding.layout.removeView(movedPair.second)
-        var distance = enemiesCardsDistance
+        var distance = if (anchor == binding.johnAnchor) enemiesCardsDistance else -enemiesCardsDistance
         if (recalculateDistance) {
             recalculateCardsDistance()
             distance = cardsDistance
@@ -291,13 +294,12 @@ class GameFragment : Fragment() {
         reorderHand(anchor.x, distance, cards)
     }
 
-    private fun ImageView.show() = this.translateY(CARD_HIDDEN_TRANSY, CARD_SHOWN_TRANSY)
-    private fun ImageView.hide() = this.translateY(CARD_SHOWN_TRANSY, CARD_HIDDEN_TRANSY)
-    private fun ImageView.enemyHide() = this.translateY(ENEMY_CARD_SHOWN_TRANSY, ENEMY_CARD_HIDDEN_TRANSY)
-    private fun ImageView.enemyShow() = this.translateY(ENEMY_CARD_HIDDEN_TRANSY, ENEMY_CARD_SHOWN_TRANSY)
+    private fun ImageView.enemyHide() = this.move(70f) { a, b -> a - b }
+    private fun ImageView.enemyShow() = this.move(70f) { a, b -> a + b }
+    private fun ImageView.hide() = this.move(382f) { a, b -> a + b }
+    private fun ImageView.show() = this.move(382f) { a, b -> a - b }
 
     companion object {
         private const val ENEMIES_DISTANCE_DP = 10f
     }
-
 }
