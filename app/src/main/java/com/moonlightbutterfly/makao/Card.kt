@@ -1,7 +1,8 @@
 package com.moonlightbutterfly.makao
 
 data class Card (
-    val value: CardValue,
-    val type: CardType,
+    val rank: Rank,
+    val suit: Suit,
     var highlighted: Boolean = false
 )
+

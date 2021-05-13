@@ -1,13 +1,15 @@
 package com.moonlightbutterfly.makao
 
+import com.moonlightbutterfly.makao.effect.Effect
+
 data class BoardState (
-    val stack: MutableList<Card> = mutableListOf(),
-    val sideStack: MutableList<Card> = mutableListOf(),
-    val effects: MutableList<Card> = mutableListOf()
+    val deck: MutableList<Card> = mutableListOf(),
+    val topStack: MutableList<Card> = mutableListOf(),
+    var effect: Effect? = null
 )
 
 fun BoardState.clone(): BoardState = BoardState(
-    stack.take(stack.size).toMutableList(),
-    sideStack.take(sideStack.size).toMutableList(),
-    effects.take(effects.size).toMutableList()
+    deck.take(deck.size).toMutableList(),
+    topStack.take(topStack.size).toMutableList(),
+    effect
 )

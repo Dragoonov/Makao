@@ -35,21 +35,6 @@ private fun ImageView.animation(
     }
 }
 
-private fun ImageView.animation(
-    property: String = "",
-    sourceX: () -> Float,
-    sourceY: () -> Float,
-    targetX: () -> Float,
-    targetY: () -> Float,
-    durationAnim: Long = 1000,
-    onEnd: () -> Unit = {}
-): Animator {
-    return LazyAnimator(this, property, sourceX, sourceY, targetX, targetY).apply {
-        duration = durationAnim
-        doOnEnd { onEnd() }
-    }
-}
-
 fun ImageView.moveBack(initialX: Float, initialY: Float): Animator {
     val animation = this.animation(targetX = initialX, targetY = initialY, durationAnim = 250)
     return AnimatorSet().apply {
@@ -91,21 +76,6 @@ fun ImageView.placeCardOnTopAnimation(
 }
 
 fun ImageView.align(card: ImageView, durationAnim: Long = 250, onEnd: () -> Unit = {}): Animator {
-//    val moveAnimation = animation(
-//        sourceX = { this.x },
-//        targetX = { card.x + card.width / 2 - this.width / 2 },
-//        sourceY = { this.y },
-//        targetY = { card.y + card.height / 2 - this.height / 2 },
-//        durationAnim = durationAnim
-//    )
-//    val scaleAnimation = animation(
-//        property = "scale",
-//        sourceX = { this.scaleX },
-//        targetX = { card.width.toFloat() / this.width },
-//        sourceY = { this.scaleY },
-//        targetY = { card.height.toFloat() / this.height },
-//        durationAnim = durationAnim
-//    )
     val moveAnimation = animation(
         sourceX = this.x ,
         targetX = card.x + card.width / 2 - this.width / 2,
@@ -124,14 +94,6 @@ fun ImageView.align(card: ImageView, durationAnim: Long = 250, onEnd: () -> Unit
     return AnimatorSet().apply {
         playTogether(moveAnimation, scaleAnimation)
         doOnEnd { onEnd() }
-    }
-}
-
-fun ImageView.highlight(highlight: Boolean) {
-    if (highlight) {
-        setColorFilter(Color.argb(100, 255, 255, 0))
-    } else {
-        setColorFilter(Color.argb(0, 0, 0, 0))
     }
 }
 
@@ -171,6 +133,30 @@ fun ImageView.drawAnimation(
         sourceY = source.height.toFloat() / target.height,
         targetX = 1f,
         targetY = 1f
+    )
+    return AnimatorSet().apply {
+        playTogether(moveAnimation, scaleAnimation)
+        doOnEnd { onEnd() }
+    }
+}
+
+fun ImageView.initializeTopCard(
+    source: ImageView,
+    target: ImageView,
+    onEnd: () -> Unit = {}
+): Animator {
+    val moveAnimation = animation(
+        sourceX = source.x,
+        targetX = target.x + target.width / 2 - source.width / 2,
+        sourceY = source.y,
+        targetY = target.y + target.height / 2 - source.height / 2
+    )
+    val scaleAnimation = animation(
+        property = "scale",
+        sourceX = source.scaleX,
+        targetX = target.width.toFloat() / source.width,
+        sourceY = source.scaleY,
+        targetY = target.height.toFloat() / source.height
     )
     return AnimatorSet().apply {
         playTogether(moveAnimation, scaleAnimation)

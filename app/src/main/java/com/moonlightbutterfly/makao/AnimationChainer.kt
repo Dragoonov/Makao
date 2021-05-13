@@ -8,14 +8,13 @@ class AnimationChainer {
     private lateinit var animations: List<() -> Animator>
     private var nextAnim: Animator? = null
     private var index = 0
+    private var doOnEnd: () -> Unit = {}
 
-    fun start() {
-        index = 0
-        provideNextAnim()
-    }
-
-    fun provideAnimations(list: List<() -> Animator>) {
+    fun start(list: List<() -> Animator>, doOnEnd: () -> Unit = {}) {
         animations = list
+        index = 0
+        this.doOnEnd = doOnEnd
+        provideNextAnim()
     }
 
     private fun provideNextAnim() {
@@ -25,6 +24,8 @@ class AnimationChainer {
                 doOnEnd { provideNextAnim() }
                 start()
             }
+        } else {
+            doOnEnd()
         }
     }
 }

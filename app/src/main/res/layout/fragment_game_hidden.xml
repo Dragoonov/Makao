@@ -17,7 +17,7 @@
             android:layout_height="72dp"
             android:src="@drawable/two_hearts"
             android:translationY="-60dp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.05"
@@ -88,7 +88,7 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <ImageView
-            android:id="@+id/stack"
+            android:id="@+id/deck"
             android:layout_width="70dp"
             android:layout_height="108dp"
             android:src="@drawable/blue_back"
