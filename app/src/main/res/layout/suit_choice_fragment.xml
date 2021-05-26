@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.moonlightbutterfly.makao.Suit" />
+        <variable
+            name="fragment"
+            type="com.moonlightbutterfly.makao.SuitChoiceDialog" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/clubs"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{view -> fragment.setSuit(view, Suit.CLUBS)}"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toStartOf="@+id/diamonds"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ace_clubs" />
+
+        <ImageView
+            android:id="@+id/diamonds"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{view -> fragment.setSuit(view, Suit.DIAMONDS)}"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="@+id/clubs"
+            app:layout_constraintEnd_toStartOf="@+id/hearts"
+            app:layout_constraintStart_toEndOf="@+id/clubs"
+            app:layout_constraintTop_toTopOf="@+id/clubs"
+            app:srcCompat="@drawable/ace_diamonds" />
+
+        <ImageView
+            android:id="@+id/hearts"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{view -> fragment.setSuit(view, Suit.HEARTS)}"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="@+id/diamonds"
+            app:layout_constraintEnd_toStartOf="@+id/spades"
+            app:layout_constraintStart_toEndOf="@+id/diamonds"
+            app:layout_constraintTop_toTopOf="@+id/diamonds"
+            app:srcCompat="@drawable/ace_hearts" />
+
+        <ImageView
+            android:id="@+id/spades"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="32dp"
+            android:onClick="@{view -> fragment.setSuit(view, Suit.SPADES)}"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="@+id/hearts"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/hearts"
+            app:layout_constraintTop_toTopOf="@+id/hearts"
+            app:srcCompat="@drawable/ace_spades" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

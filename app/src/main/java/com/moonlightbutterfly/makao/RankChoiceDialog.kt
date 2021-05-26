@@ -1,0 +1,51 @@
+package com.moonlightbutterfly.makao
+
+
+import android.app.Dialog
+import android.graphics.Color
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.children
+import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
+import com.moonlightbutterfly.makao.databinding.FragmentGameShownBinding
+import com.moonlightbutterfly.makao.databinding.RankChoiceFragmentBinding
+import com.moonlightbutterfly.makao.databinding.SuitChoiceFragmentBinding
+
+class RankChoiceDialog : DialogFragment() {
+
+    private lateinit var binding: RankChoiceFragmentBinding
+    private lateinit var viewModel: GameViewModel
+    private var rankChosen = Rank.FIVE
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        binding = RankChoiceFragmentBinding.inflate(layoutInflater).apply {
+            this.fragment = this@RankChoiceDialog
+        }
+        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        return AlertDialog.Builder(requireContext())
+            .setMessage(getString(R.string.rank_choice))
+            .setView(binding.root)
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                viewModel.rankRequested(rankChosen)
+            }
+            .create()
+    }
+
+    fun setRank(view:View, rank: Rank) {
+        view as ImageView
+        (binding.root as ViewGroup).children.forEach {
+            (it as ImageView).setColorFilter(Color.argb(0, 0, 0, 0))
+        }
+        view.setColorFilter(Color.argb(100, 255, 255, 0))
+        rankChosen = rank
+    }
+
+    companion object {
+        const val TAG = "PurchaseConfirmationDialog"
+    }
+}

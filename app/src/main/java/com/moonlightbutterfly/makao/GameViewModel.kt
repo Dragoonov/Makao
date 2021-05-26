@@ -3,6 +3,8 @@ package com.moonlightbutterfly.makao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.moonlightbutterfly.makao.effect.RequireRankEffect
+import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 import com.moonlightbutterfly.makao.highlighting.CardsHighlighter
 
 class GameViewModel : ViewModel() {
@@ -14,8 +16,12 @@ class GameViewModel : ViewModel() {
     private val cardsHighlighter = CardsHighlighter()
     private var cardWasTakenInRound = false
 
+
     private val _possibleMoves = MutableLiveData<List<Card>>()
     val possibleMoves: LiveData<List<Card>> = _possibleMoves
+
+    private val _gameStarted = MutableLiveData(false)
+    val gameStarted: LiveData<Boolean> = _gameStarted
 
     private val _drawPossible = MutableLiveData<Boolean>()
     val drawPossible: LiveData<Boolean> = _drawPossible
@@ -31,13 +37,18 @@ class GameViewModel : ViewModel() {
         updateHighlight()
     }
 
-    fun onDrawnCard(): List<Action> {
-        val actions = game.drawCard(MAIN_PLAYER)
-        updateHighlight()
-        return actions
+    fun suitRequested(suit:Suit) {
+        game.updateEffect(RequireSuitEffect(suit))
     }
 
+    fun rankRequested(rank: Rank) {
+        game.updateEffect(RequireRankEffect(rank))
+    }
+
+    fun onDrawnCard(): List<Action> = game.drawCard(MAIN_PLAYER)
+
     fun startGame(): List<Action> {
+        _gameStarted.value = true
         return game.startGame()
     }
 
@@ -48,14 +59,10 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    private fun updateHighlight() {
+    fun updateHighlight() {
         val highlightInfo = cardsHighlighter.provideCardsToHighlight(mainPlayer.hand, game.getTopCard(), cardWasTakenInRound)
         _possibleMoves.value = highlightInfo.first
         _drawPossible.value = highlightInfo.second
-    }
-
-    fun onGameStarted() {
-        updateHighlight()
     }
 
     companion object {

@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportFragmentManager.commit {
-            replace<MenuFragment>(R.id.fragment_host)
+            replace<GameFragment>(R.id.fragment_host)
         }
     }
 }

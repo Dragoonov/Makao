@@ -2,6 +2,7 @@ package com.moonlightbutterfly.makao
 
 import android.util.Log
 import com.moonlightbutterfly.makao.ai.AI
+import com.moonlightbutterfly.makao.effect.Effect
 
 class Game(private val players: List<Player>) {
     private var currentPlayer = players[0]
@@ -23,7 +24,7 @@ class Game(private val players: List<Player>) {
                 actions.add(DrawCardAction(player, card))
             }
         }
-        val topCard = boardState.deck.removeLast()
+        val topCard = boardState.deck.findLast { it.isActionCard().not() }!!
         boardState.topStack.add(topCard)
         actions.add(InitializeCardAction(topCard))
         return actions
@@ -34,6 +35,10 @@ class Game(private val players: List<Player>) {
         val card = boardState.deck.removeFirst()
         player.hand.add(card)
         return listOf(DrawCardAction(player, card))
+    }
+
+    fun updateEffect(effect: Effect) {
+        boardState.effect = effect
     }
 
     fun placeCardOnTop(playerName: String, card: Card) {
@@ -66,4 +71,6 @@ class Game(private val players: List<Player>) {
     }
 
     fun getTopCard() = boardState.topStack.last()
+
+    private fun Card.isActionCard() =this.rank in arrayOf(Rank.TWO, Rank.THREE, Rank.FOUR, Rank.JACK, Rank.QUEEN, Rank.KING, Rank.ACE)
 }

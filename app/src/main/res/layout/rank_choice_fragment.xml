@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.moonlightbutterfly.makao.Rank" />
+        <variable
+            name="fragment"
+            type="com.moonlightbutterfly.makao.RankChoiceDialog" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/five"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{view -> fragment.setRank(view, Rank.FIVE)}"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toStartOf="@+id/six"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/five_spades" />
+
+        <ImageView
+            android:id="@+id/six"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{view -> fragment.setRank(view, Rank.SIX)}"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="@+id/five"
+            app:layout_constraintEnd_toStartOf="@+id/seven"
+            app:layout_constraintStart_toEndOf="@+id/five"
+            app:layout_constraintTop_toTopOf="@+id/five"
+            app:srcCompat="@drawable/six_spades" />
+
+        <ImageView
+            android:id="@+id/seven"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="32dp"
+            android:onClick="@{view -> fragment.setRank(view, Rank.SEVEN)}"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/six"
+            app:layout_constraintTop_toTopOf="@+id/six"
+            app:srcCompat="@drawable/seven_spades" />
+
+        <ImageView
+            android:id="@+id/nine"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{view -> fragment.setRank(view, Rank.EIGHT)}"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toStartOf="@+id/spades2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/five"
+            app:srcCompat="@drawable/eight_spades" />
+
+        <ImageView
+            android:id="@+id/spades2"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{view -> fragment.setRank(view, Rank.NINE)}"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="@+id/nine"
+            app:layout_constraintEnd_toStartOf="@+id/ten"
+            app:layout_constraintStart_toEndOf="@+id/nine"
+            app:layout_constraintTop_toTopOf="@+id/nine"
+            app:srcCompat="@drawable/nine_spades" />
+
+        <ImageView
+            android:id="@+id/ten"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="32dp"
+            android:onClick="@{view -> fragment.setRank(view, Rank.TEN)}"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/spades2"
+            app:layout_constraintTop_toTopOf="@+id/spades2"
+            app:srcCompat="@drawable/ten_spades" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

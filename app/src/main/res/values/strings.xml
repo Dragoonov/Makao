@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Makao</string>
     <string name="start">Start</string>
+    <string name="suit_choice">Choose a suit to request</string>
+    <string name="rank_choice">Choose a rank to request</string>
+    <string name="ok">OK</string>
 </resources>

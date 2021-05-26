@@ -25,7 +25,7 @@ class CardsHighlighter {
 
     private fun provideCardsForNoEffect(hand: List<Card>, topCard: Card, cardWasTaken: Boolean): Pair<List<Card>, Boolean> {
         return hand.filter {
-            it.rank == topCard.rank || it.suit == topCard.suit || it == CardPeeker.QUEEN_OF_SPADES
+            it.rank == topCard.rank || it.suit == topCard.suit || (it == CardPeeker.QUEEN_OF_SPADES)
         } to cardWasTaken.not()
     }
 
