@@ -60,16 +60,18 @@ class GameFragment : Fragment() {
                         v?.let {
                             it as ImageView
                             if (isCardNearCenter(it) && it.isHighlighted()) {
-                                val card = cards.find { wrapper -> wrapper.imageView == it }!!.card
-                                if (card.isAce()) {
-                                    SuitChoiceDialog().show(childFragmentManager, SuitChoiceDialog.TAG)
+                                val card = cards.find { wrapper -> wrapper.imageView == it }!!
+                                if (card.card.isAce()) {
+                                    SuitChoiceDialog(card).show(childFragmentManager, SuitChoiceDialog.TAG)
                                 }
-                                if (card.isJack()) {
-                                    RankChoiceDialog().show(childFragmentManager, RankChoiceDialog.TAG)
+                                else if (card.card.isJack()) {
+                                    RankChoiceDialog(card).show(childFragmentManager, RankChoiceDialog.TAG)
+                                }
+                                else {
+                                    viewModel.onCardPlacedOnTop(card)
                                 }
                                 it.align(binding.topCard) {
                                     removeCardFromBoard(cards, binding.cardsAnchor, it, true)
-                                    viewModel.onCardPlacedOnTop(card)
                                 }.start()
                             } else {
                                 it.moveBack(initialX, initialY).start()
@@ -118,6 +120,7 @@ class GameFragment : Fragment() {
         binding = FragmentGameShownBinding.inflate(layoutInflater)
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
         viewModel.drawPossible.observe(viewLifecycleOwner) {
+            binding.deck.lock(it.not())
             if (it) {
                 binding.deck.setColorFilter(Color.argb(100, 255, 255, 0))
             } else {
@@ -158,6 +161,7 @@ class GameFragment : Fragment() {
         animations.add { show() }
         animationChainer.start(animations) {
             lockActions(false)
+            viewModel.updateHighlight()
         }
     }
 

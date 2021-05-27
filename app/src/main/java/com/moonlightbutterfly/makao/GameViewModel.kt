@@ -15,6 +15,7 @@ class GameViewModel : ViewModel() {
     private val game = Game(listOf(john, arthur, mainPlayer))
     private val cardsHighlighter = CardsHighlighter()
     private var cardWasTakenInRound = false
+    private var cardWasPlacedInRound = false
 
 
     private val _possibleMoves = MutableLiveData<List<Card>>()
@@ -32,20 +33,16 @@ class GameViewModel : ViewModel() {
     private val _arthurWon = MutableLiveData<Boolean>()
     val arthurWon: LiveData<Boolean> = _arthurWon
 
-    fun onCardPlacedOnTop(card: Card) {
-        game.placeCardOnTop(MAIN_PLAYER, card)
+    fun onCardPlacedOnTop(card: CardWrapper) {
+        cardWasPlacedInRound = true
+        game.placeCardOnTop(MAIN_PLAYER, card.card, card.effect)
         updateHighlight()
     }
 
-    fun suitRequested(suit:Suit) {
-        game.updateEffect(RequireSuitEffect(suit))
+    fun onDrawnCard(): List<Action> {
+        cardWasTakenInRound = true
+        return game.drawCard(MAIN_PLAYER)
     }
-
-    fun rankRequested(rank: Rank) {
-        game.updateEffect(RequireRankEffect(rank))
-    }
-
-    fun onDrawnCard(): List<Action> = game.drawCard(MAIN_PLAYER)
 
     fun startGame(): List<Action> {
         _gameStarted.value = true
@@ -53,6 +50,8 @@ class GameViewModel : ViewModel() {
     }
 
     fun getNextTurnsActions(): List<Action> = mutableListOf<Action>().apply {
+        cardWasTakenInRound = false
+        cardWasPlacedInRound = false
         repeat(PLAYERS_COUNT) {
             val receivedActions = game.nextTurn(MAIN_PLAYER)
             addAll(receivedActions)
@@ -60,7 +59,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun updateHighlight() {
-        val highlightInfo = cardsHighlighter.provideCardsToHighlight(mainPlayer.hand, game.getTopCard(), cardWasTakenInRound)
+        val highlightInfo = cardsHighlighter.provideCardsToHighlight(mainPlayer.hand, game.getTopCard(), cardWasTakenInRound, cardWasPlacedInRound)
         _possibleMoves.value = highlightInfo.first
         _drawPossible.value = highlightInfo.second
     }

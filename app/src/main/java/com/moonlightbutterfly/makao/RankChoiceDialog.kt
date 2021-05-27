@@ -15,8 +15,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.moonlightbutterfly.makao.databinding.FragmentGameShownBinding
 import com.moonlightbutterfly.makao.databinding.RankChoiceFragmentBinding
 import com.moonlightbutterfly.makao.databinding.SuitChoiceFragmentBinding
+import com.moonlightbutterfly.makao.effect.RequireRankEffect
+import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 
-class RankChoiceDialog : DialogFragment() {
+class RankChoiceDialog(private val card: CardWrapper) : DialogFragment() {
 
     private lateinit var binding: RankChoiceFragmentBinding
     private lateinit var viewModel: GameViewModel
@@ -31,9 +33,15 @@ class RankChoiceDialog : DialogFragment() {
             .setMessage(getString(R.string.rank_choice))
             .setView(binding.root)
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                viewModel.rankRequested(rankChosen)
+                (card.effect as RequireRankEffect).setRank(rankChosen)
+                viewModel.onCardPlacedOnTop(card)
             }
             .create()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setRank(binding.five, Rank.FIVE)
+        super.onViewCreated(view, savedInstanceState)
     }
 
     fun setRank(view:View, rank: Rank) {

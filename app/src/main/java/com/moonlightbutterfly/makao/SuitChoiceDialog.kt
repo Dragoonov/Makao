@@ -13,8 +13,9 @@ import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.moonlightbutterfly.makao.databinding.SuitChoiceFragmentBinding
+import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 
-class SuitChoiceDialog : DialogFragment() {
+class SuitChoiceDialog(private val card: CardWrapper) : DialogFragment() {
 
     private lateinit var binding: SuitChoiceFragmentBinding
     private lateinit var viewModel: GameViewModel
@@ -30,17 +31,15 @@ class SuitChoiceDialog : DialogFragment() {
             .setMessage(getString(R.string.suit_choice))
             .setView(binding.root)
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                viewModel.suitRequested(suitChosen)
+                (card.effect as RequireSuitEffect).setSuit(suitChosen)
+                viewModel.onCardPlacedOnTop(card)
             }
             .create()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = SuitChoiceFragmentBinding.inflate(layoutInflater).apply {
-            this.fragment = this@SuitChoiceDialog
-        }
-        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
-        return super.onCreateView(inflater, container, savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setSuit(binding.clubs, Suit.CLUBS)
+        super.onViewCreated(view, savedInstanceState)
     }
 
     fun setSuit(view: View, suit: Suit) {

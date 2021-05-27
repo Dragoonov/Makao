@@ -2,7 +2,7 @@ package com.moonlightbutterfly.makao
 
 import android.util.Log
 import com.moonlightbutterfly.makao.ai.AI
-import com.moonlightbutterfly.makao.effect.Effect
+import com.moonlightbutterfly.makao.effect.*
 
 class Game(private val players: List<Player>) {
     private var currentPlayer = players[0]
@@ -37,15 +37,14 @@ class Game(private val players: List<Player>) {
         return listOf(DrawCardAction(player, card))
     }
 
-    fun updateEffect(effect: Effect) {
-        boardState.effect = effect
-    }
-
-    fun placeCardOnTop(playerName: String, card: Card) {
+    fun placeCardOnTop(playerName: String, card: Card, effect: Effect?) {
         val player = players.find { it.name == playerName }!!
         boardState.topStack.add(card)
         if (!player.hand.remove(card)) {
             Log.v(javaClass.simpleName, "Didn't find the $card in $player hand: ${player.hand}")
+        }
+        effect?.let {
+            boardState.effect?.merge(it)
         }
     }
 

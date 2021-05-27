@@ -1,3 +1,5 @@
 package com.moonlightbutterfly.makao.effect
 
-interface Effect
+interface Effect {
+    fun merge(effect: Effect): Effect
+}
