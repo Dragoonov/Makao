@@ -61,14 +61,10 @@ class GameFragment : Fragment() {
                             it as ImageView
                             if (isCardNearCenter(it) && it.isHighlighted()) {
                                 val card = cards.find { wrapper -> wrapper.imageView == it }!!
-                                if (card.card.isAce()) {
-                                    SuitChoiceDialog(card).show(childFragmentManager, SuitChoiceDialog.TAG)
-                                }
-                                else if (card.card.isJack()) {
-                                    RankChoiceDialog(card).show(childFragmentManager, RankChoiceDialog.TAG)
-                                }
-                                else {
-                                    viewModel.onCardPlacedOnTop(card)
+                                when {
+                                    card.card.isAce() -> SuitChoiceDialog(card).show(childFragmentManager, SuitChoiceDialog.TAG)
+                                    card.card.isJack() -> RankChoiceDialog(card).show(childFragmentManager, RankChoiceDialog.TAG)
+                                    else -> viewModel.onCardPlacedOnTop(card)
                                 }
                                 it.align(binding.topCard) {
                                     removeCardFromBoard(cards, binding.cardsAnchor, it, true)
@@ -127,6 +123,14 @@ class GameFragment : Fragment() {
                 binding.deck.setColorFilter(Color.argb(0, 0, 0, 0))
             }
         }
+        viewModel.finishRoundPossible.observe(viewLifecycleOwner) {
+            binding.finishRound.lock(it.not())
+            if (it) {
+                binding.finishRound.setColorFilter(Color.argb(100, 255, 255, 0))
+            } else {
+                binding.finishRound.setColorFilter(Color.argb(0, 0, 0, 0))
+            }
+        }
         viewModel.possibleMoves.observe(viewLifecycleOwner) { list ->
             cards.forEach { highlight(it, list.contains(it.card)) }
         }
@@ -134,8 +138,8 @@ class GameFragment : Fragment() {
             binding.panelContainer.visibility = View.GONE
             lockActions(true)
             animationChainer.start(getAnimationsForActions(viewModel.startGame())) {
-                viewModel.updateHighlight()
                 lockActions(false)
+                viewModel.updateHighlight()
             }
         }
         binding.panelContainer.visibility = View.VISIBLE

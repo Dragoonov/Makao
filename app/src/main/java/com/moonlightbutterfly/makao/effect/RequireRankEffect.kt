@@ -2,11 +2,7 @@ package com.moonlightbutterfly.makao.effect
 
 import com.moonlightbutterfly.makao.Rank
 
-class RequireRankEffect (private var rank: Rank): Effect {
+class RequireRankEffect (private val rank: Rank): Effect {
     fun getRank() = rank
-    fun setRank(rank: Rank) {
-        this.rank = rank
-    }
-
-    override fun merge(effect: Effect): Effect = effect
+    override fun merge(effect: Effect?): Effect = effect ?: this
 }

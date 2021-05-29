@@ -8,6 +8,8 @@ class AI {
         val clonedBoardState = boardState.clone()
         val card = player.hand.removeLast()
         val cardToTake = clonedBoardState.deck.removeLast()
+        player.hand.add(cardToTake)
+        clonedBoardState.topStack += card
         val actions = mutableListOf<Action>().apply {
             add(DrawCardAction(clonedPlayer, cardToTake))
             add(PlaceCardAction(clonedPlayer, card))

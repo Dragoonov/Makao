@@ -22,7 +22,7 @@
             android:layout_height="72dp"
             android:src="@drawable/two_hearts"
             android:translationY="-60dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.05"
@@ -36,13 +36,13 @@
             android:layout_height="72dp"
             android:src="@drawable/two_spades"
             android:translationY="-60dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.95"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.12"
-            app:layout_constraintHorizontal_bias="0.95"/>
+            app:layout_constraintVertical_bias="0.12" />
 
         <ImageView
             android:id="@+id/top_card"
@@ -85,7 +85,7 @@
             android:id="@+id/finishRound"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:translationY="170dp"
+            android:translationY="275dp"
             app:layout_constraintVertical_bias="1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

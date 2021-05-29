@@ -3,9 +3,8 @@ package com.moonlightbutterfly.makao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.moonlightbutterfly.makao.effect.RequireRankEffect
-import com.moonlightbutterfly.makao.effect.RequireSuitEffect
-import com.moonlightbutterfly.makao.highlighting.CardsHighlighter
+import com.moonlightbutterfly.makao.effect.*
+import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 
 class GameViewModel : ViewModel() {
 
@@ -13,8 +12,8 @@ class GameViewModel : ViewModel() {
     private val arthur = Player(ARTHUR, mutableListOf())
     private val mainPlayer = Player(MAIN_PLAYER, mutableListOf())
     private val game = Game(listOf(john, arthur, mainPlayer))
-    private val cardsHighlighter = CardsHighlighter()
-    private var cardWasTakenInRound = false
+    private val cardsHighlighter = OptionsHighlighter()
+    private var cardsTakenInRound = 0
     private var cardWasPlacedInRound = false
 
 
@@ -27,20 +26,23 @@ class GameViewModel : ViewModel() {
     private val _drawPossible = MutableLiveData<Boolean>()
     val drawPossible: LiveData<Boolean> = _drawPossible
 
+    private val _finishRoundPossible = MutableLiveData<Boolean>()
+    val finishRoundPossible: LiveData<Boolean> = _finishRoundPossible
+
     private val _johnWon = MutableLiveData<Boolean>()
     val johnWon: LiveData<Boolean> = _johnWon
 
     private val _arthurWon = MutableLiveData<Boolean>()
     val arthurWon: LiveData<Boolean> = _arthurWon
 
-    fun onCardPlacedOnTop(card: CardWrapper) {
+    fun onCardPlacedOnTop(card: CardWrapper, effect: Effect? = null) {
         cardWasPlacedInRound = true
-        game.placeCardOnTop(MAIN_PLAYER, card.card, card.effect)
+        game.placeCardOnTop(MAIN_PLAYER, card.card, effect)
         updateHighlight()
     }
 
     fun onDrawnCard(): List<Action> {
-        cardWasTakenInRound = true
+        cardsTakenInRound += 1
         return game.drawCard(MAIN_PLAYER)
     }
 
@@ -50,7 +52,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun getNextTurnsActions(): List<Action> = mutableListOf<Action>().apply {
-        cardWasTakenInRound = false
+        cardsTakenInRound = 0
         cardWasPlacedInRound = false
         repeat(PLAYERS_COUNT) {
             val receivedActions = game.nextTurn(MAIN_PLAYER)
@@ -59,9 +61,16 @@ class GameViewModel : ViewModel() {
     }
 
     fun updateHighlight() {
-        val highlightInfo = cardsHighlighter.provideCardsToHighlight(mainPlayer.hand, game.getTopCard(), cardWasTakenInRound, cardWasPlacedInRound)
+        val highlightInfo = cardsHighlighter.provideOptionsToHighlight(
+            mainPlayer.hand,
+            game.getTopCard(),
+            cardsTakenInRound,
+            cardWasPlacedInRound,
+            game.getCurrentEffect()
+        )
         _possibleMoves.value = highlightInfo.first
         _drawPossible.value = highlightInfo.second
+        _finishRoundPossible.value = highlightInfo.third
     }
 
     companion object {

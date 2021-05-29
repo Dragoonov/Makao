@@ -30,6 +30,8 @@ class Game(private val players: List<Player>) {
         return actions
     }
 
+    fun getCurrentEffect() = boardState.effect
+
     fun drawCard(playerName: String): List<Action> {
         val player = players.find { it.name == playerName }!!
         val card = boardState.deck.removeFirst()
@@ -37,15 +39,29 @@ class Game(private val players: List<Player>) {
         return listOf(DrawCardAction(player, card))
     }
 
-    fun placeCardOnTop(playerName: String, card: Card, effect: Effect?) {
+    private fun getEffectForCard(card:Card): Effect? {
+        return when (card.rank) {
+            Rank.TWO -> DrawCardsEffect(2)
+            Rank.THREE -> DrawCardsEffect(3)
+            Rank.FOUR -> WaitTurnEffect(1)
+            else -> {
+                if (card.rank == Rank.KING && (card.suit == Suit.DIAMONDS || card.suit == Suit.HEARTS)) {
+                    DrawCardsEffect(5)
+                } else {
+                    null
+                }
+            }
+        }
+    }
+
+    fun placeCardOnTop(playerName: String, card: Card, effect: Effect? = null) {
         val player = players.find { it.name == playerName }!!
         boardState.topStack.add(card)
         if (!player.hand.remove(card)) {
             Log.v(javaClass.simpleName, "Didn't find the $card in $player hand: ${player.hand}")
         }
-        effect?.let {
-            boardState.effect?.merge(it)
-        }
+        val cardEffect = effect ?: getEffectForCard(card)
+        boardState.effect?.merge(cardEffect)
     }
 
     fun nextTurn(skipPlayer: String? = null): List<Action> {

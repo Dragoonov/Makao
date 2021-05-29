@@ -31,8 +31,7 @@ class SuitChoiceDialog(private val card: CardWrapper) : DialogFragment() {
             .setMessage(getString(R.string.suit_choice))
             .setView(binding.root)
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                (card.effect as RequireSuitEffect).setSuit(suitChosen)
-                viewModel.onCardPlacedOnTop(card)
+                viewModel.onCardPlacedOnTop(card, RequireSuitEffect(suitChosen))
             }
             .create()
     }
