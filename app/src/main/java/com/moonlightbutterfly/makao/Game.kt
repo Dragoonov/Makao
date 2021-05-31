@@ -6,7 +6,7 @@ import com.moonlightbutterfly.makao.effect.*
 
 class Game(private val players: List<Player>) {
     private var currentPlayer = players[0]
-    private val ai = AI()
+    private val ai = AI { getEffectForCard(it) }
     private val boardState = BoardState()
 
     fun startGame(): List<Action> {
@@ -30,22 +30,26 @@ class Game(private val players: List<Player>) {
         return actions
     }
 
+    fun getCardsTakenInRound() = boardState.cardsTakenInRound
+    fun getCardWasPlacedInRound() = boardState.cardPlacedInRound
+
     fun getCurrentEffect() = boardState.effect
 
     fun drawCard(playerName: String): List<Action> {
+        boardState.cardsTakenInRound += 1
         val player = players.find { it.name == playerName }!!
         val card = boardState.deck.removeFirst()
         player.hand.add(card)
         return listOf(DrawCardAction(player, card))
     }
 
-    private fun getEffectForCard(card:Card): Effect? {
+    private fun getEffectForCard(card: Card): Effect? {
         return when (card.rank) {
             Rank.TWO -> DrawCardsEffect(2)
             Rank.THREE -> DrawCardsEffect(3)
             Rank.FOUR -> WaitTurnEffect(1)
             else -> {
-                if (card.rank == Rank.KING && (card.suit == Suit.DIAMONDS || card.suit == Suit.HEARTS)) {
+                if (card.rank == Rank.KING && (card.suit == Suit.SPADES || card.suit == Suit.HEARTS)) {
                     DrawCardsEffect(5)
                 } else {
                     null
@@ -55,16 +59,24 @@ class Game(private val players: List<Player>) {
     }
 
     fun placeCardOnTop(playerName: String, card: Card, effect: Effect? = null) {
+        boardState.cardPlacedInRound = true
         val player = players.find { it.name == playerName }!!
         boardState.topStack.add(card)
         if (!player.hand.remove(card)) {
             Log.v(javaClass.simpleName, "Didn't find the $card in $player hand: ${player.hand}")
         }
         val cardEffect = effect ?: getEffectForCard(card)
-        boardState.effect?.merge(cardEffect)
+        if (boardState.effect == null) {
+            boardState.effect = cardEffect
+        } else {
+            boardState.effect = boardState.effect?.merge(cardEffect)
+        }
     }
 
     fun nextTurn(skipPlayer: String? = null): List<Action> {
+        calculateEffectPersistence()
+        boardState.cardsTakenInRound = 0
+        boardState.cardPlacedInRound = false
         skipPlayer?.let {
             if (currentPlayer.name == skipPlayer) {
                 currentPlayer = players[(players.indexOf(currentPlayer) + 1) % players.size]
@@ -85,7 +97,15 @@ class Game(private val players: List<Player>) {
         return output.second
     }
 
+    private fun calculateEffectPersistence() {
+        val conditionForDrawCards = boardState.effect is DrawCardsEffect && boardState.cardsTakenInRound >= (boardState.effect as DrawCardsEffect).getCardsAmount()
+        val conditionForWaitTurn = boardState.effect is WaitTurnEffect
+        if (conditionForDrawCards or conditionForWaitTurn) {
+            boardState.effect = null
+        }
+    }
+
     fun getTopCard() = boardState.topStack.last()
 
-    private fun Card.isActionCard() =this.rank in arrayOf(Rank.TWO, Rank.THREE, Rank.FOUR, Rank.JACK, Rank.QUEEN, Rank.KING, Rank.ACE)
+    private fun Card.isActionCard() = this.rank in arrayOf(Rank.TWO, Rank.THREE, Rank.FOUR, Rank.JACK, Rank.QUEEN, Rank.KING, Rank.ACE)
 }

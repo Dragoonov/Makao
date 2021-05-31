@@ -37,8 +37,8 @@ class SuitChoiceDialog(private val card: CardWrapper) : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setSuit(binding.clubs, Suit.CLUBS)
         super.onViewCreated(view, savedInstanceState)
+        setSuit(binding.clubs, Suit.CLUBS)
     }
 
     fun setSuit(view: View, suit: Suit) {

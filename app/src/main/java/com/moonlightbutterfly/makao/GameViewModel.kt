@@ -12,9 +12,7 @@ class GameViewModel : ViewModel() {
     private val arthur = Player(ARTHUR, mutableListOf())
     private val mainPlayer = Player(MAIN_PLAYER, mutableListOf())
     private val game = Game(listOf(john, arthur, mainPlayer))
-    private val cardsHighlighter = OptionsHighlighter()
-    private var cardsTakenInRound = 0
-    private var cardWasPlacedInRound = false
+    private val cardsHighlighter = OptionsHighlighter.instance
 
 
     private val _possibleMoves = MutableLiveData<List<Card>>()
@@ -36,13 +34,11 @@ class GameViewModel : ViewModel() {
     val arthurWon: LiveData<Boolean> = _arthurWon
 
     fun onCardPlacedOnTop(card: CardWrapper, effect: Effect? = null) {
-        cardWasPlacedInRound = true
         game.placeCardOnTop(MAIN_PLAYER, card.card, effect)
         updateHighlight()
     }
 
     fun onDrawnCard(): List<Action> {
-        cardsTakenInRound += 1
         return game.drawCard(MAIN_PLAYER)
     }
 
@@ -52,8 +48,6 @@ class GameViewModel : ViewModel() {
     }
 
     fun getNextTurnsActions(): List<Action> = mutableListOf<Action>().apply {
-        cardsTakenInRound = 0
-        cardWasPlacedInRound = false
         repeat(PLAYERS_COUNT) {
             val receivedActions = game.nextTurn(MAIN_PLAYER)
             addAll(receivedActions)
@@ -64,9 +58,9 @@ class GameViewModel : ViewModel() {
         val highlightInfo = cardsHighlighter.provideOptionsToHighlight(
             mainPlayer.hand,
             game.getTopCard(),
-            cardsTakenInRound,
-            cardWasPlacedInRound,
-            game.getCurrentEffect()
+            game.getCardsTakenInRound(),
+            game.getCardWasPlacedInRound(),
+            game.getCurrentEffect(),
         )
         _possibleMoves.value = highlightInfo.first
         _drawPossible.value = highlightInfo.second

@@ -1,19 +1,57 @@
 package com.moonlightbutterfly.makao.ai
 
 import com.moonlightbutterfly.makao.*
+import com.moonlightbutterfly.makao.effect.Effect
+import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 
-class AI {
+class AI(private val effectProvider: (Card) -> Effect?) {
+
+    private val highlighter = OptionsHighlighter.instance
+
     fun getActionsForPlayer(player: Player, boardState: BoardState): Triple<BoardState, List<Action>, Player> {
         val clonedPlayer = player.copy(name = player.name, hand = player.hand)
         val clonedBoardState = boardState.clone()
-        val card = player.hand.removeLast()
-        val cardToTake = clonedBoardState.deck.removeLast()
-        player.hand.add(cardToTake)
-        clonedBoardState.topStack += card
-        val actions = mutableListOf<Action>().apply {
-            add(DrawCardAction(clonedPlayer, cardToTake))
-            add(PlaceCardAction(clonedPlayer, card))
+        val actions = mutableListOf<Action>()
+        var cardsTakenInRound = 0
+        var cardPlacedInRound = false
+        var finished = false
+        while (!finished) {
+            val results = highlighter.provideOptionsToHighlight(
+                clonedPlayer.hand,
+                clonedBoardState.topStack.last(),
+                cardsTakenInRound,
+                cardPlacedInRound,
+                clonedBoardState.effect)
+            val cardsToPlay = results.first
+            val canTakeCard = results.second
+            val canFinish = results.third
+            when {
+                cardsToPlay.isNotEmpty() -> {
+                    val cardToPlay = cardsToPlay.random()
+                    player.hand.remove(cardToPlay)
+                    clonedBoardState.topStack += cardToPlay
+                    actions.add(PlaceCardAction(clonedPlayer, cardToPlay))
+                    cardPlacedInRound = true
+                    val cardEffect = effectProvider(cardToPlay)
+                    if (clonedBoardState.effect == null) {
+                        clonedBoardState.effect = cardEffect
+                    } else {
+                        clonedBoardState.effect = clonedBoardState.effect?.merge(cardEffect)
+                    }
+                }
+                canFinish -> {
+                    finished = true
+                }
+                canTakeCard -> {
+                    val card = clonedBoardState.deck.removeLast()
+                    clonedPlayer.hand.add(card)
+                    actions.add(DrawCardAction(clonedPlayer, card))
+                    cardsTakenInRound += 1
+                }
+            }
         }
+        clonedBoardState.cardPlacedInRound = cardPlacedInRound
+        clonedBoardState.cardsTakenInRound = cardsTakenInRound
         return Triple(clonedBoardState, actions, player)
     }
 }

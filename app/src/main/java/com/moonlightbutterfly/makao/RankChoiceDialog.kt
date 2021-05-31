@@ -39,8 +39,8 @@ class RankChoiceDialog(private val card: CardWrapper) : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setRank(binding.five, Rank.FIVE)
         super.onViewCreated(view, savedInstanceState)
+        setRank(binding.five, Rank.FIVE)
     }
 
     fun setRank(view:View, rank: Rank) {

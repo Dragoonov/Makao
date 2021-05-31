@@ -5,7 +5,9 @@ import com.moonlightbutterfly.makao.effect.Effect
 data class BoardState (
     val deck: MutableList<Card> = mutableListOf(),
     val topStack: MutableList<Card> = mutableListOf(),
-    var effect: Effect? = null
+    var effect: Effect? = null,
+    var cardPlacedInRound: Boolean = false,
+    var cardsTakenInRound: Int = 0
 )
 
 fun BoardState.clone(): BoardState = BoardState(

@@ -4,7 +4,11 @@ import com.moonlightbutterfly.makao.*
 import com.moonlightbutterfly.makao.effect.*
 
 
-class OptionsHighlighter {
+class OptionsHighlighter private constructor() {
+
+    companion object {
+        val instance = OptionsHighlighter()
+    }
 
     fun provideOptionsToHighlight(
         hand: List<Card>,
@@ -37,7 +41,7 @@ class OptionsHighlighter {
                 )
                 is RequireSuitEffect -> provideCardsForRequireSuitEffect(hand, topCard, effect, cardsTakenInRound, cardWasPlaced)
                 is RequireRankEffect -> provideCardsForRequireRankEffect(hand, topCard, effect, cardsTakenInRound, cardWasPlaced)
-                is WaitTurnEffect -> provideCardsForWaitTurnEffect(hand, cardsTakenInRound)
+                is WaitTurnEffect -> provideCardsForWaitTurnEffect(hand, cardsTakenInRound, cardWasPlaced)
                 else -> error("Wrong effect: $effect")
             }
         }
@@ -65,17 +69,22 @@ class OptionsHighlighter {
         cardWasPlaced: Boolean,
         cardsAmount: Int
     ): Triple<List<Card>, Boolean, Boolean> {
-        return Triple(hand.filter {
-            if (cardWasPlaced) {
-                it.rank == topCard.rank
+        return Triple(
+            if (cardsTakenInRound > 1) {
+                emptyList()
             } else {
-                it.rank in listOf(Rank.TWO, Rank.THREE) || it in listOf(
-                    CardPeeker.QUEEN_OF_SPADES,
-                    CardPeeker.KING_OF_HEARTS,
-                    CardPeeker.KING_OF_SPADES
-                )
+            hand.filter {
+                if (cardWasPlaced) {
+                    it.rank == topCard.rank
+                } else {
+                    it.rank in listOf(Rank.TWO, Rank.THREE) || it in listOf(
+                        CardPeeker.QUEEN_OF_SPADES,
+                        CardPeeker.KING_OF_HEARTS,
+                        CardPeeker.KING_OF_SPADES
+                    )
+                }
             }
-        }, ((cardsTakenInRound >= 1) or cardWasPlaced).not(), cardWasPlaced or (cardsTakenInRound >= cardsAmount))
+        }, ((cardsTakenInRound >= cardsAmount) or cardWasPlaced).not(), cardWasPlaced or (cardsTakenInRound >= cardsAmount))
     }
 
     private fun provideCardsForRequireRankEffect(
@@ -91,7 +100,7 @@ class OptionsHighlighter {
             } else {
                 it.rank == topCard.rank
             }
-        }, ((cardsTakenInRound >= 1) or cardWasPlaced).not(), (cardsTakenInRound >= 1))
+        }, ((cardsTakenInRound >= 1) or cardWasPlaced).not(), (cardsTakenInRound >= 1) or cardWasPlaced)
     }
 
     private fun provideCardsForRequireSuitEffect(
@@ -107,10 +116,14 @@ class OptionsHighlighter {
             } else {
                 it.rank == topCard.rank
             }
-        }, ((cardsTakenInRound >= 1) or cardWasPlaced).not(), cardWasPlaced)
+        }, ((cardsTakenInRound >= 1) or cardWasPlaced).not(), cardWasPlaced or (cardsTakenInRound >= 1))
     }
 
-    private fun provideCardsForWaitTurnEffect(hand: List<Card>, cardsTakenInRound: Int): Triple<List<Card>, Boolean, Boolean> {
-        return Triple(hand.filter { it.rank == Rank.FOUR }, cardsTakenInRound == 0, cardsTakenInRound >= 1)
+    private fun provideCardsForWaitTurnEffect(hand: List<Card>, cardsTakenInRound: Int, cardWasPlaced: Boolean): Triple<List<Card>, Boolean, Boolean> {
+        return Triple(
+            hand.filter { it.rank == Rank.FOUR },
+            (cardWasPlaced or (cardsTakenInRound >= 1)).not(),
+            (cardsTakenInRound >= 1) or cardWasPlaced
+        )
     }
 }
