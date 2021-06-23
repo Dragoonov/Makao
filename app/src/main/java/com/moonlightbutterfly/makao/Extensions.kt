@@ -4,14 +4,13 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
-import android.content.Context
 import android.graphics.drawable.Drawable
-import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.view.children
+import com.moonlightbutterfly.makao.ui.Utils
 
 private fun ImageView.animation(
     property: String = "",
@@ -101,7 +100,7 @@ fun ImageView.align(card: ImageView, durationAnim: Long = 250, onEnd: () -> Unit
 
 fun ImageView.move(value: Float, operation: (Float, Float) -> Float): Animator {
     val source = translationY
-    val target = operation(translationY, dpToPixel(value, context))
+    val target = operation(translationY, Utils.dpToPixel(value, context))
     return this.translateY(source, target)
 }
 
@@ -165,9 +164,6 @@ fun ImageView.initializeTopCard(
         doOnEnd { onEnd() }
     }
 }
-
-fun dpToPixel(dp: Float, context: Context) =
-    dp * context.resources.displayMetrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT
 
 fun View.lock(lock: Boolean) {
     isEnabled = lock.not()

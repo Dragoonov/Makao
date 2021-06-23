@@ -13,5 +13,7 @@ data class BoardState (
 fun BoardState.clone(): BoardState = BoardState(
     deck.take(deck.size).toMutableList(),
     topStack.take(topStack.size).toMutableList(),
-    effect
+    effect,
+    cardPlacedInRound,
+    cardsTakenInRound
 )

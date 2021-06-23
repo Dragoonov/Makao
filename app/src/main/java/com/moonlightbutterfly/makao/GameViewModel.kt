@@ -62,9 +62,9 @@ class GameViewModel : ViewModel() {
             game.getCardWasPlacedInRound(),
             game.getCurrentEffect(),
         )
-        _possibleMoves.value = highlightInfo.first
-        _drawPossible.value = highlightInfo.second
-        _finishRoundPossible.value = highlightInfo.third
+        _possibleMoves.value = highlightInfo.cardsToPlay
+        _drawPossible.value = highlightInfo.drawPossible
+        _finishRoundPossible.value = highlightInfo.finishRoundPossible
     }
 
     companion object {

@@ -2,6 +2,8 @@ package com.moonlightbutterfly.makao.ai
 
 import com.moonlightbutterfly.makao.*
 import com.moonlightbutterfly.makao.effect.Effect
+import com.moonlightbutterfly.makao.effect.RequireRankEffect
+import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 
 class AI(private val effectProvider: (Card) -> Effect?) {
@@ -22,9 +24,9 @@ class AI(private val effectProvider: (Card) -> Effect?) {
                 cardsTakenInRound,
                 cardPlacedInRound,
                 clonedBoardState.effect)
-            val cardsToPlay = results.first
-            val canTakeCard = results.second
-            val canFinish = results.third
+            val cardsToPlay = results.cardsToPlay
+            val canTakeCard = results.drawPossible
+            val canFinish = results.finishRoundPossible
             when {
                 cardsToPlay.isNotEmpty() -> {
                     val cardToPlay = cardsToPlay.random()
@@ -32,7 +34,12 @@ class AI(private val effectProvider: (Card) -> Effect?) {
                     clonedBoardState.topStack += cardToPlay
                     actions.add(PlaceCardAction(clonedPlayer, cardToPlay))
                     cardPlacedInRound = true
-                    val cardEffect = effectProvider(cardToPlay)
+                    var cardEffect = effectProvider(cardToPlay)
+                    if (cardToPlay.rank == Rank.ACE) {
+                        cardEffect = RequireSuitEffect(Suit.values().random())
+                    } else if (cardToPlay.rank == Rank.JACK) {
+                        cardEffect = RequireRankEffect(arrayOf(Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN).random())
+                    }
                     if (clonedBoardState.effect == null) {
                         clonedBoardState.effect = cardEffect
                     } else {

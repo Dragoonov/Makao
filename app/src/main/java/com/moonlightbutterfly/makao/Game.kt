@@ -7,7 +7,8 @@ import com.moonlightbutterfly.makao.effect.*
 class Game(private val players: List<Player>) {
     private var currentPlayer = players[0]
     private val ai = AI { getEffectForCard(it) }
-    private val boardState = BoardState()
+    private var boardState = BoardState()
+    private var effectListener: ((Effect?) -> Unit)? = null
 
     fun startGame(): List<Action> {
         val actions = mutableListOf<Action>()
@@ -28,6 +29,10 @@ class Game(private val players: List<Player>) {
         boardState.topStack.add(topCard)
         actions.add(InitializeCardAction(topCard))
         return actions
+    }
+
+    fun setOnEffectListener(listener: (Effect?) -> Unit) {
+        this.effectListener = listener
     }
 
     fun getCardsTakenInRound() = boardState.cardsTakenInRound
@@ -84,15 +89,7 @@ class Game(private val players: List<Player>) {
         }
         val output = ai.getActionsForPlayer(currentPlayer, boardState)
         currentPlayer.hand = output.third.hand
-        boardState.deck.apply {
-            clear()
-            addAll(output.first.deck)
-        }
-        boardState.topStack.apply {
-            clear()
-            addAll(output.first.topStack)
-        }
-        boardState.effect = output.first.effect
+        boardState = output.first
         currentPlayer = players[(players.indexOf(currentPlayer) + 1) % players.size]
         return output.second
     }

@@ -1,12 +1,12 @@
-package com.moonlightbutterfly.makao
+package com.moonlightbutterfly.makao.ui
 
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.BounceInterpolator
 import android.widget.ImageView
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -15,13 +15,14 @@ import androidx.core.animation.doOnStart
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.transition.*
+import com.moonlightbutterfly.makao.*
+import com.moonlightbutterfly.makao.R
 import com.moonlightbutterfly.makao.databinding.FragmentGameShownBinding
 
 class GameFragment : Fragment() {
 
-    private lateinit var viewModel: GameViewModel
+    private lateinit var gameViewModel: GameViewModel
     private lateinit var binding: FragmentGameShownBinding
-    private var expanded = false
     private val cards: MutableList<CardWrapper> = mutableListOf()
     private val johnCards: MutableList<CardWrapper> = mutableListOf()
     private val arthurCards: MutableList<CardWrapper> = mutableListOf()
@@ -59,12 +60,18 @@ class GameFragment : Fragment() {
                     MotionEvent.ACTION_UP -> {
                         v?.let {
                             it as ImageView
-                            if (isCardNearCenter(it) && it.isHighlighted()) {
-                                val card = cards.find { wrapper -> wrapper.imageView == it }!!
+                            val cardWrapper = cards.first { wrapper -> wrapper.imageView == it }
+                            if (Utils.isCardNearCenter(it, binding.topCard) && cardWrapper.highlighted) {
                                 when {
-                                    card.card.isAce() -> SuitChoiceDialog(card).show(childFragmentManager, SuitChoiceDialog.TAG)
-                                    card.card.isJack() -> RankChoiceDialog(card).show(childFragmentManager, RankChoiceDialog.TAG)
-                                    else -> viewModel.onCardPlacedOnTop(card)
+                                    cardWrapper.card.isAce() -> SuitChoiceDialog(cardWrapper).show(
+                                        childFragmentManager,
+                                        SuitChoiceDialog.TAG
+                                    )
+                                    cardWrapper.card.isJack() -> RankChoiceDialog(cardWrapper).show(
+                                        childFragmentManager,
+                                        RankChoiceDialog.TAG
+                                    )
+                                    else -> gameViewModel.onCardPlacedOnTop(cardWrapper)
                                 }
                                 it.align(binding.topCard) {
                                     removeCardFromBoard(cards, binding.cardsAnchor, it, true)
@@ -75,97 +82,108 @@ class GameFragment : Fragment() {
                         }
                         true
                     }
-                    else -> return true
+                    else -> true
                 }
             }
         }
     }
-
-    private fun isCardNearCenter(imageView: ImageView): Boolean {
-        val top = binding.topCard
-        val center = (imageView.x + imageView.width / 2) to (imageView.y + imageView.height / 2)
-        val isXInside = center.first > top.x && center.first < top.x + top.width
-        val isYInside = center.second > top.y && center.second < top.y + top.height
-        return isXInside && isYInside
-    }
-
-    private fun ImageView.isHighlighted() = cards.find { it.imageView == this }!!.highlighted
-
-    private fun highlight(wrapper: CardWrapper, shouldHighlight: Boolean) {
-        wrapper.highlighted = shouldHighlight
-        if (shouldHighlight) {
-            wrapper.imageView.setColorFilter(Color.argb(100, 255, 255, 0))
-        } else {
-            wrapper.imageView.setColorFilter(Color.argb(0, 0, 0, 0))
-        }
-    }
-
-    private fun arthurDrawCard(card: Card) = enemyDrawCard(card, binding.arthurAnchor, -enemiesCardsDistance, arthurCards)
-
-    private fun johnDrawCard(card: Card) = enemyDrawCard(card, binding.johnAnchor, enemiesCardsDistance, johnCards)
-
-    private fun arthurPlaceCard(card: Card) = enemyPlaceCard(card, binding.arthurAnchor, arthurCards)
-
-    private fun johnPlaceCard(card: Card) = enemyPlaceCard(card, binding.johnAnchor, johnCards)
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentGameShownBinding.inflate(layoutInflater)
-        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
-        viewModel.drawPossible.observe(viewLifecycleOwner) {
-            binding.deck.lock(it.not())
-            if (it) {
-                binding.deck.setColorFilter(Color.argb(100, 255, 255, 0))
-            } else {
-                binding.deck.setColorFilter(Color.argb(0, 0, 0, 0))
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java).apply{
+            drawPossible.observe(viewLifecycleOwner) {
+                binding.deck.apply {
+                    lock(it.not())
+                    Utils.highlightCard(this, it)
+                }
+            }
+            finishRoundPossible.observe(viewLifecycleOwner) {
+                binding.finishRound.animate().apply {
+                    interpolator = BounceInterpolator()
+                    duration = 750
+                    scaleX(if (it) 1f else 0f)
+                    scaleY(if (it) 1f else 0f)
+                    start()
+                }
+                binding.finishRound.apply {
+                    lock(it.not())
+                    Utils.highlightCard(this, it)
+                }
+            }
+            possibleMoves.observe(viewLifecycleOwner) { list ->
+                cards.forEach { Utils.highlightCard(it, list.contains(it.card)) }
             }
         }
-        viewModel.finishRoundPossible.observe(viewLifecycleOwner) {
-            binding.finishRound.lock(it.not())
-            if (it) {
-                binding.finishRound.setColorFilter(Color.argb(100, 255, 255, 0))
-            } else {
-                binding.finishRound.setColorFilter(Color.argb(0, 0, 0, 0))
+        binding = FragmentGameShownBinding.inflate(layoutInflater).apply {
+            panelContainer.visibility = View.VISIBLE
+            start.setOnClickListener {
+                panelContainer.visibility = View.GONE
+                lockActions(true)
+                animationChainer.start(getAnimationsForActions(gameViewModel.startGame())) {
+                    lockActions(false)
+                    gameViewModel.updateHighlight()
+                }
             }
-        }
-        viewModel.possibleMoves.observe(viewLifecycleOwner) { list ->
-            cards.forEach { highlight(it, list.contains(it.card)) }
-        }
-        binding.start.setOnClickListener {
-            binding.panelContainer.visibility = View.GONE
-            lockActions(true)
-            animationChainer.start(getAnimationsForActions(viewModel.startGame())) {
-                lockActions(false)
-                viewModel.updateHighlight()
+            deck.setOnClickListener {
+                animationChainer.start(getAnimationsForActions(gameViewModel.onDrawnCard())) {
+                    gameViewModel.updateHighlight()
+                }
             }
-        }
-        binding.panelContainer.visibility = View.VISIBLE
-        binding.deck.setOnClickListener {
-            animationChainer.start(getAnimationsForActions(viewModel.onDrawnCard())) {
-                viewModel.updateHighlight()
-            }
-        }
-        binding.finishRound.setOnClickListener {
-            onRoundFinished()
+            finishRound.setOnClickListener { onRoundFinished() }
         }
         imageProvider = CardImageProvider(requireContext())
         cardsDistance = binding.cardsAnchor.layoutParams.width.toFloat()
-        enemiesCardsDistance = dpToPixel(ENEMIES_DISTANCE_DP, requireContext())
+        enemiesCardsDistance = Utils.dpToPixel(ENEMIES_DISTANCE_DP, requireContext())
         return binding.root
+    }
+
+    private fun arthurDrawCard(card: Card) = enemyDrawCard(card, binding.arthurAnchor, -enemiesCardsDistance, arthurCards)
+
+    private fun johnDrawCard(card: Card) = enemyDrawCard(card, binding.johnAnchor, enemiesCardsDistance, johnCards)
+
+    private fun enemyDrawCard(card: Card, anchor: ImageView, distance: Float, cards: MutableList<CardWrapper>): Animator {
+        val newView = getCardView(card, true)
+        binding.layout.addView(newView)
+        cards.add(CardWrapper(card, newView))
+        return newView.drawAnimation(
+            binding.deck,
+            anchor,
+            distance * (cards.size - 1)
+        )
+    }
+
+    private fun arthurPlaceCard(card: Card) = enemyPlaceCard(card, binding.arthurAnchor, arthurCards)
+
+    private fun johnPlaceCard(card: Card) = enemyPlaceCard(card, binding.johnAnchor, johnCards)
+
+    private fun enemyPlaceCard(
+        card: Card,
+        anchor: ImageView,
+        cards: MutableList<CardWrapper>
+    ): Animator {
+        val wrapper = cards.first { it.card == card }
+        return wrapper.imageView.placeCardOnTopAnimation(
+            card = binding.topCard,
+            targetDrawable = imageProvider.provideCardImageRotated(wrapper.card)
+        ) {
+            removeCardFromBoard(cards, anchor, wrapper.imageView)
+        }
     }
 
     private fun onRoundFinished() {
         lockActions(true)
-        val actions = viewModel.getNextTurnsActions()
-        val animations = getAnimationsForActions(actions).toMutableList()
-        animations.add(0) { hide() }
-        animations.add { show() }
+        val actions = gameViewModel.getNextTurnsActions()
+        val animations = mutableListOf<() -> Animator>().apply {
+            add { hide() }
+            addAll(getAnimationsForActions(actions))
+            add { show() }
+        }
         animationChainer.start(animations) {
             lockActions(false)
-            viewModel.updateHighlight()
+            gameViewModel.updateHighlight()
         }
     }
 
@@ -177,7 +195,9 @@ class GameFragment : Fragment() {
         val animations = mutableListOf<() -> Animator>()
         actions.forEach {
             val animation = when (it) {
-                is InitializeCardAction -> {{initializeCard(it.card)}}
+                is InitializeCardAction -> {
+                    { initializeCard(it.card) }
+                }
                 is DrawCardAction -> when (it.player.name) {
                     GameViewModel.ARTHUR -> {
                         { arthurDrawCard(it.card) }
@@ -205,7 +225,6 @@ class GameFragment : Fragment() {
         val cardsAnimations = mutableListOf<Animator>()
         cardsAnimations.addAll(cards.map { it.imageView.hide() })
         cardsAnimations.addAll((johnCards + arthurCards).map { it.imageView.enemyShow() })
-        expanded = !expanded
         return AnimatorSet().apply {
             playTogether(cardsAnimations)
             doOnStart { updateConstraints(R.layout.fragment_game_hidden) }
@@ -216,7 +235,6 @@ class GameFragment : Fragment() {
         val cardsAnimations = mutableListOf<Animator>()
         cardsAnimations.addAll(cards.map { it.imageView.show() })
         cardsAnimations.addAll((johnCards + arthurCards).map { it.imageView.enemyHide() })
-        expanded = !expanded
         return AnimatorSet().apply {
             playTogether(cardsAnimations)
             doOnStart { updateConstraints(R.layout.fragment_game_shown) }
@@ -237,15 +255,9 @@ class GameFragment : Fragment() {
     private fun recalculateCardsDistance() {
         val spaceTakenRatio = cardsDistance * cards.size / binding.layout.width
         cardsDistance = when {
-            spaceTakenRatio > 0.8 -> {
-                cardsDistance / 1.5f
-            }
-            spaceTakenRatio < 0.5 && cardsDistance < binding.cardsAnchor.width -> {
-                cardsDistance * 1.5f
-            }
-            else -> {
-                cardsDistance
-            }
+            spaceTakenRatio > 0.8 -> cardsDistance / 1.5f
+            spaceTakenRatio < 0.5 && cardsDistance < binding.cardsAnchor.width -> cardsDistance * 1.5f
+            else -> cardsDistance
         }
     }
 
@@ -276,22 +288,6 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun enemyDrawCard(
-        card: Card,
-        anchor: ImageView,
-        distance: Float,
-        cards: MutableList<CardWrapper>
-    ): Animator {
-        val newView = getCardView(card, true)
-        binding.layout.addView(newView)
-        cards.add(CardWrapper(card,newView))
-        return newView.drawAnimation(
-            binding.deck,
-            anchor,
-            distance * (cards.size - 1)
-        )
-    }
-
     private fun initializeCard(card: Card): Animator {
         val cardView = getCardView(card, params = binding.deck.layoutParams)
         binding.layout.addView(cardView)
@@ -306,21 +302,11 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun enemyPlaceCard(
+    private fun getCardView(
         card: Card,
-        anchor: ImageView,
-        cards: MutableList<CardWrapper>
-    ): Animator {
-        val wrapper = cards.find { it.card == card }
-        return wrapper?.imageView?.placeCardOnTopAnimation(
-            card = binding.topCard,
-            targetDrawable = imageProvider.provideCardImageRotated(wrapper.card)!!
-        ) {
-            removeCardFromBoard(cards, anchor, wrapper.imageView)
-        }!!
-    }
-
-    private fun getCardView(card: Card, forEnemy: Boolean = false, params: ViewGroup.LayoutParams = binding.cardsAnchor.layoutParams): ImageView {
+        forEnemy: Boolean = false,
+        params: ViewGroup.LayoutParams = binding.cardsAnchor.layoutParams
+    ): ImageView {
         return ImageView(context).apply {
             val drawable = if (forEnemy) imageProvider.provideCardBackImage() else imageProvider.provideCardImage(card)
             setImageDrawable(drawable)

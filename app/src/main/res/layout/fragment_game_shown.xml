@@ -84,6 +84,8 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:translationY="275dp"
+            android:scaleX="0"
+            android:scaleY="0"
             app:layout_constraintBottom_toTopOf="@+id/panel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

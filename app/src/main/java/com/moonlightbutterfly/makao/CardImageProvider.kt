@@ -20,8 +20,7 @@ class CardImageProvider(private val context: Context) {
 
     fun provideCardBackImage(): Drawable? = ContextCompat.getDrawable(context, R.drawable.blue_back)
 
-    fun provideCardImageRotated(card: Card): Drawable? =
-        providersMap[card.suit]?.provideCard(card.rank)?.rotate()
+    fun provideCardImageRotated(card: Card): Drawable = providersMap.getValue(card.suit).provideCard(card.rank).rotate()
 
     private fun Drawable.rotate(): Drawable {
         val arrayDrawable = arrayOf(this)
@@ -39,7 +38,7 @@ class CardImageProvider(private val context: Context) {
 
     private inner class DiamondsProvider : Provider {
 
-        override fun provideCard(value: Rank): Drawable? {
+        override fun provideCard(value: Rank): Drawable {
             @DrawableRes val drawableId = when (value) {
                 Rank.TWO -> R.drawable.two_diamonds
                 Rank.THREE -> R.drawable.three_diamonds
@@ -55,13 +54,13 @@ class CardImageProvider(private val context: Context) {
                 Rank.KING -> R.drawable.king_diamonds
                 Rank.ACE -> R.drawable.ace_diamonds
             }
-            return ContextCompat.getDrawable(context, drawableId)
+            return ContextCompat.getDrawable(context, drawableId)!!
         }
     }
 
     private inner class ClubsProvider : Provider {
 
-        override fun provideCard(value: Rank): Drawable? {
+        override fun provideCard(value: Rank): Drawable {
             @DrawableRes val drawableId = when (value) {
                 Rank.TWO -> R.drawable.two_clubs
                 Rank.THREE -> R.drawable.three_clubs
@@ -77,13 +76,13 @@ class CardImageProvider(private val context: Context) {
                 Rank.KING -> R.drawable.king_clubs
                 Rank.ACE -> R.drawable.ace_clubs
             }
-            return ContextCompat.getDrawable(context, drawableId)
+            return ContextCompat.getDrawable(context, drawableId)!!
         }
     }
 
     private inner class SpadesProvider : Provider {
 
-        override fun provideCard(value: Rank): Drawable? {
+        override fun provideCard(value: Rank): Drawable {
             @DrawableRes val drawableId = when (value) {
                 Rank.TWO -> R.drawable.two_spades
                 Rank.THREE -> R.drawable.three_spades
@@ -99,13 +98,13 @@ class CardImageProvider(private val context: Context) {
                 Rank.KING -> R.drawable.king_spades
                 Rank.ACE -> R.drawable.ace_spades
             }
-            return ContextCompat.getDrawable(context, drawableId)
+            return ContextCompat.getDrawable(context, drawableId)!!
         }
     }
 
     private inner class HeartsProvider : Provider {
 
-        override fun provideCard(value: Rank): Drawable? {
+        override fun provideCard(value: Rank): Drawable {
             @DrawableRes val drawableId = when (value) {
                 Rank.TWO -> R.drawable.two_hearts
                 Rank.THREE -> R.drawable.three_hearts
@@ -121,12 +120,12 @@ class CardImageProvider(private val context: Context) {
                 Rank.KING -> R.drawable.king_hearts
                 Rank.ACE -> R.drawable.ace_hearts
             }
-            return ContextCompat.getDrawable(context, drawableId)
+            return ContextCompat.getDrawable(context, drawableId)!!
         }
     }
 
     interface Provider {
-        fun provideCard(value: Rank): Drawable?
+        fun provideCard(value: Rank): Drawable
     }
 
 }
