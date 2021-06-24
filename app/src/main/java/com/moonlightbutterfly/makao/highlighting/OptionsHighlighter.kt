@@ -13,7 +13,7 @@ class OptionsHighlighter private constructor() {
         cardWasPlaced: Boolean,
         effect: Effect? = null
     ): HighlightInfo {
-        if (topCard == CardPeeker.QUEEN_OF_SPADES) {
+        if (topCard.rank == Rank.QUEEN) {
             return HighlightInfo(
                 if (cardWasPlaced) {
                     emptyList()

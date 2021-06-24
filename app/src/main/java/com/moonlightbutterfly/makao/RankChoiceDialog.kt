@@ -18,22 +18,20 @@ import com.moonlightbutterfly.makao.databinding.SuitChoiceFragmentBinding
 import com.moonlightbutterfly.makao.effect.RequireRankEffect
 import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 
-class RankChoiceDialog(private val card: CardWrapper) : DialogFragment() {
+class RankChoiceDialog(private val listener: (rank: Rank) -> Unit) : DialogFragment() {
 
     private lateinit var binding: RankChoiceFragmentBinding
-    private lateinit var viewModel: GameViewModel
     private var rankChosen = Rank.FIVE
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = RankChoiceFragmentBinding.inflate(layoutInflater).apply {
             this.fragment = this@RankChoiceDialog
         }
-        viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
         return AlertDialog.Builder(requireContext())
             .setMessage(getString(R.string.rank_choice))
             .setView(binding.root)
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                viewModel.onCardPlacedOnTop(card, RequireRankEffect(rankChosen))
+                listener(rankChosen)
             }
             .create()
     }

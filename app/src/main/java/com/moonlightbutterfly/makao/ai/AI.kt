@@ -30,7 +30,7 @@ class AI(private val effectProvider: (Card) -> Effect?) {
             when {
                 cardsToPlay.isNotEmpty() -> {
                     val cardToPlay = cardsToPlay.random()
-                    player.hand.remove(cardToPlay)
+                    clonedPlayer.hand.remove(cardToPlay)
                     clonedBoardState.topStack += cardToPlay
                     actions.add(PlaceCardAction(clonedPlayer, cardToPlay))
                     cardPlacedInRound = true
@@ -54,11 +54,19 @@ class AI(private val effectProvider: (Card) -> Effect?) {
                     clonedPlayer.hand.add(card)
                     actions.add(DrawCardAction(clonedPlayer, card))
                     cardsTakenInRound += 1
+                    if (clonedBoardState.deck.isEmpty()) {
+                        shuffle(clonedBoardState.deck, clonedBoardState.topStack)
+                    }
                 }
             }
+            clonedBoardState.cardsTakenInRound = cardsTakenInRound
+            clonedBoardState.cardPlacedInRound = cardPlacedInRound
         }
-        clonedBoardState.cardPlacedInRound = cardPlacedInRound
-        clonedBoardState.cardsTakenInRound = cardsTakenInRound
-        return Triple(clonedBoardState, actions, player)
+        return Triple(clonedBoardState, actions, clonedPlayer)
+    }
+
+    private fun shuffle(deck: MutableList<Card>, topStack: MutableList<Card>) {
+        deck.addAll(topStack.dropLast(1).shuffled())
+        topStack.removeAll { it != topStack.last() }
     }
 }

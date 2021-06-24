@@ -44,8 +44,16 @@ class Game(private val players: List<Player>) {
         boardState.cardsTakenInRound += 1
         val player = players.find { it.name == playerName }!!
         val card = boardState.deck.removeFirst()
+        if (boardState.deck.isEmpty()) {
+            shuffle()
+        }
         player.hand.add(card)
         return listOf(DrawCardAction(player, card))
+    }
+
+    private fun shuffle() {
+        boardState.deck.addAll(boardState.topStack.dropLast(1).shuffled())
+        boardState.topStack.removeAll { it != boardState.topStack.last() }
     }
 
     private fun getEffectForCard(card: Card): Effect? {
@@ -76,12 +84,16 @@ class Game(private val players: List<Player>) {
         } else {
             boardState.effect = boardState.effect?.merge(cardEffect)
         }
+        effectListener?.let { it(boardState.effect) }
     }
 
-    fun nextTurn(skipPlayer: String? = null): List<Action> {
+    fun onTurnEnd() {
         calculateEffectPersistence()
         boardState.cardsTakenInRound = 0
         boardState.cardPlacedInRound = false
+    }
+
+    fun nextTurn(skipPlayer: String? = null): List<Action> {
         skipPlayer?.let {
             if (currentPlayer.name == skipPlayer) {
                 currentPlayer = players[(players.indexOf(currentPlayer) + 1) % players.size]
@@ -90,7 +102,9 @@ class Game(private val players: List<Player>) {
         val output = ai.getActionsForPlayer(currentPlayer, boardState)
         currentPlayer.hand = output.third.hand
         boardState = output.first
+        effectListener?.let { it(boardState.effect) }
         currentPlayer = players[(players.indexOf(currentPlayer) + 1) % players.size]
+        onTurnEnd()
         return output.second
     }
 

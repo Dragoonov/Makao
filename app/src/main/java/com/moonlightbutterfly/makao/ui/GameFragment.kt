@@ -18,6 +18,8 @@ import androidx.transition.*
 import com.moonlightbutterfly.makao.*
 import com.moonlightbutterfly.makao.R
 import com.moonlightbutterfly.makao.databinding.FragmentGameShownBinding
+import com.moonlightbutterfly.makao.effect.RequireRankEffect
+import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 
 class GameFragment : Fragment() {
 
@@ -63,11 +65,15 @@ class GameFragment : Fragment() {
                             val cardWrapper = cards.first { wrapper -> wrapper.imageView == it }
                             if (Utils.isCardNearCenter(it, binding.topCard) && cardWrapper.highlighted) {
                                 when {
-                                    cardWrapper.card.isAce() -> SuitChoiceDialog(cardWrapper).show(
+                                    cardWrapper.card.isAce() -> SuitChoiceDialog { suit ->
+                                        gameViewModel.onCardPlacedOnTop(cardWrapper, RequireSuitEffect(suit))
+                                    }.show(
                                         childFragmentManager,
                                         SuitChoiceDialog.TAG
                                     )
-                                    cardWrapper.card.isJack() -> RankChoiceDialog(cardWrapper).show(
+                                    cardWrapper.card.isJack() -> RankChoiceDialog { rank ->
+                                        gameViewModel.onCardPlacedOnTop(cardWrapper, RequireRankEffect(rank))
+                                    }.show(
                                         childFragmentManager,
                                         RankChoiceDialog.TAG
                                     )
@@ -94,6 +100,33 @@ class GameFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java).apply{
+            effectLiveData.observe(viewLifecycleOwner) {
+                binding.effect.text = when (it) {
+                    is RequireSuitEffect -> {
+                        getString(R.string.effect_needed, it.getSuit())
+                    }
+                    is RequireRankEffect -> {
+                        getString(R.string.effect_needed, it.getRank())
+                    }
+                    else -> {
+                        ""
+                    }
+                }
+            }
+            animationsToPerform.observe(viewLifecycleOwner) {
+                val animations = mutableListOf<() -> Animator>().apply {
+                    addAll(getAnimationsForActions(it))
+                }
+                lockActions(true)
+                animationChainer.start(animations) {
+                    lockActions(false)
+                    gameViewModel.updateHighlight()
+                }
+            }
+            gameEnded.observe(viewLifecycleOwner) {
+                binding.end.visibility = View.VISIBLE
+                binding.end.text = getString(R.string.game_ended, it)
+            }
             drawPossible.observe(viewLifecycleOwner) {
                 binding.deck.apply {
                     lock(it.not())
@@ -121,16 +154,11 @@ class GameFragment : Fragment() {
             panelContainer.visibility = View.VISIBLE
             start.setOnClickListener {
                 panelContainer.visibility = View.GONE
-                lockActions(true)
-                animationChainer.start(getAnimationsForActions(gameViewModel.startGame())) {
-                    lockActions(false)
-                    gameViewModel.updateHighlight()
-                }
+                gameViewModel.onStartGame()
             }
             deck.setOnClickListener {
-                animationChainer.start(getAnimationsForActions(gameViewModel.onDrawnCard())) {
-                    gameViewModel.updateHighlight()
-                }
+                lockActions(true)
+                gameViewModel.onDrawnCard()
             }
             finishRound.setOnClickListener { onRoundFinished() }
         }
@@ -175,16 +203,7 @@ class GameFragment : Fragment() {
 
     private fun onRoundFinished() {
         lockActions(true)
-        val actions = gameViewModel.getNextTurnsActions()
-        val animations = mutableListOf<() -> Animator>().apply {
-            add { hide() }
-            addAll(getAnimationsForActions(actions))
-            add { show() }
-        }
-        animationChainer.start(animations) {
-            lockActions(false)
-            gameViewModel.updateHighlight()
-        }
+        gameViewModel.onTurnFinished()
     }
 
     private fun lockActions(lock: Boolean) {
@@ -195,6 +214,8 @@ class GameFragment : Fragment() {
         val animations = mutableListOf<() -> Animator>()
         actions.forEach {
             val animation = when (it) {
+                is HideInterfaceAction -> { { hide() } }
+                is ShowInterfaceAction -> { { show() } }
                 is InitializeCardAction -> {
                     { initializeCard(it.card) }
                 }
