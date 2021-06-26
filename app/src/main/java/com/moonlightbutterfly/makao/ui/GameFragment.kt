@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.BounceInterpolator
 import android.widget.ImageView
 import androidx.annotation.LayoutRes
@@ -124,8 +125,14 @@ class GameFragment : Fragment() {
                 }
             }
             gameEnded.observe(viewLifecycleOwner) {
-                binding.end.visibility = View.VISIBLE
                 binding.end.text = getString(R.string.game_ended, it)
+                binding.endPanel.animate().apply {
+                    interpolator = AccelerateInterpolator()
+                    duration = 200
+                    scaleX(1f)
+                    scaleY(1f)
+                    start()
+                }
             }
             drawPossible.observe(viewLifecycleOwner) {
                 binding.deck.apply {
@@ -141,10 +148,6 @@ class GameFragment : Fragment() {
                     scaleY(if (it) 1f else 0f)
                     start()
                 }
-                binding.finishRound.apply {
-                    lock(it.not())
-                    Utils.highlightCard(this, it)
-                }
             }
             possibleMoves.observe(viewLifecycleOwner) { list ->
                 cards.forEach { Utils.highlightCard(it, list.contains(it.card)) }
@@ -153,14 +156,29 @@ class GameFragment : Fragment() {
         binding = FragmentGameShownBinding.inflate(layoutInflater).apply {
             panelContainer.visibility = View.VISIBLE
             start.setOnClickListener {
-                panelContainer.visibility = View.GONE
-                gameViewModel.onStartGame()
+                panelContainer.animate().apply {
+                    duration = 250
+                    x(1500f)
+                }.withEndAction {
+                    panelContainer.visibility = View.GONE
+                    gameViewModel.onStartGame()
+                }.start()
             }
             deck.setOnClickListener {
                 lockActions(true)
                 gameViewModel.onDrawnCard()
             }
-            finishRound.setOnClickListener { onRoundFinished() }
+            finishRound.setOnClickListener {
+                it.animate().apply {
+                    scaleX(0f)
+                    scaleY(0f)
+                    interpolator = AccelerateInterpolator()
+                    duration = 150
+                }.withEndAction {
+                    onRoundFinished()
+                }.start()
+            }
+            quit.setOnClickListener { activity?.finish() }
         }
         imageProvider = CardImageProvider(requireContext())
         cardsDistance = binding.cardsAnchor.layoutParams.width.toFloat()
@@ -179,7 +197,7 @@ class GameFragment : Fragment() {
         return newView.drawAnimation(
             binding.deck,
             anchor,
-            distance * (cards.size - 1)
+            distance * (cards.size-1)
         )
     }
 
@@ -304,8 +322,11 @@ class GameFragment : Fragment() {
             binding.cardsAnchor,
             cardsDistance * (cards.size - 1)
         ) {
+            val distance = cardsDistance
             recalculateCardsDistance()
-            reorderHand(binding.cardsAnchor.x, cardsDistance, cards)
+            if (distance != cardsDistance) {
+                reorderHand(binding.cardsAnchor.x, cardsDistance, cards)
+            }
         }
     }
 

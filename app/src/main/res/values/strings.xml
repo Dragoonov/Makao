@@ -6,4 +6,5 @@
     <string name="ok">OK</string>
     <string name="effect_needed">%s is needed</string>
     <string name="game_ended">%s won!</string>
+    <string name="quit">Quit</string>
 </resources>

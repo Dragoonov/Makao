@@ -141,6 +141,31 @@ fun ImageView.drawAnimation(
     }
 }
 
+fun ImageView.drawAnimation2(
+    source: ImageView,
+    target: ImageView,
+    distance: Float = 0f,
+    onEnd: () -> Unit = {}
+): Animator {
+    val moveAnimation = animation(
+        sourceX = source.x,
+        targetX = target.x - target.width/2 + distance,
+        sourceY = source.y,
+        targetY = target.y + target.height / 2 - source.height / 2
+    )
+    val scaleAnimation = animation(
+        property = "scale",
+        sourceX = source.scaleX,
+        targetX = target.width.toFloat() / source.width,
+        sourceY = source.scaleY,
+        targetY = target.height.toFloat() / source.height
+    )
+    return AnimatorSet().apply {
+        playTogether(moveAnimation, scaleAnimation)
+        doOnEnd { onEnd() }
+    }
+}
+
 fun ImageView.initializeTopCard(
     source: ImageView,
     target: ImageView,

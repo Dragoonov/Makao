@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <import type="android.view.View" />
@@ -12,6 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout"
         android:layout_width="match_parent"
+        android:background="@color/game_background"
         android:layout_height="match_parent">
 
         <ImageView
@@ -47,13 +49,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="64dp"
-            app:layout_constraintBottom_toTopOf="@+id/top_card"
-            app:layout_constraintEnd_toEndOf="@+id/top_card"
-            app:layout_constraintStart_toStartOf="@+id/top_card" />
+            app:layout_constraintBottom_toTopOf="@+id/topCard"
+            app:layout_constraintEnd_toEndOf="@+id/topCard"
+            app:layout_constraintStart_toStartOf="@+id/topCard" />
 
 
         <ImageView
-            android:id="@+id/top_card"
+            android:id="@+id/topCard"
             android:layout_width="105dp"
             android:layout_height="162dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -67,12 +69,17 @@
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:translationY="275dp"
-            app:cardBackgroundColor="@color/cardview_dark_background"
+            app:cardCornerRadius="25dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" >
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/panel_background"/>
+        </androidx.cardview.widget.CardView>
 
         <ImageView
             android:id="@+id/cardsAnchor"
@@ -86,20 +93,23 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.35"
             android:translationY="275dp"
-            android:visibility="invisible" />
+            android:visibility="visible"
+            android:translationZ="11dp"/>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <ImageView
             android:id="@+id/finishRound"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:translationY="275dp"
             android:scaleX="0"
             android:scaleY="0"
+            android:src="@drawable/done_tick"
+            android:translationZ="10dp"
             app:layout_constraintBottom_toTopOf="@+id/panel"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/panel"
-            app:layout_constraintVertical_bias="0.4" />
+            app:layout_constraintVertical_bias="0.4"/>
 
         <ImageView
             android:id="@+id/deck"
@@ -108,60 +118,110 @@
             android:src="@drawable/blue_back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/top_card"
+            app:layout_constraintStart_toEndOf="@id/topCard"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.4" />
 
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/endPanel"
+            android:scaleY="0"
+            android:scaleX="0"
+            android:translationZ="11dp">
+
+            <ImageView
+                android:id="@+id/winPanel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="64dp"
+                android:layout_marginBottom="64dp"
+                android:background="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                tools:layout_editor_absoluteX="0dp" />
+
+            <TextView
+                android:id="@+id/end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="40sp"
+                app:layout_constraintVertical_bias="0.30"
+                app:layout_constraintBottom_toBottomOf="@+id/winPanel"
+                app:layout_constraintEnd_toEndOf="@+id/winPanel"
+                app:layout_constraintStart_toStartOf="@+id/winPanel"
+                app:layout_constraintTop_toTopOf="@+id/winPanel" />
+
+            <ImageView
+                android:id="@+id/crown"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="64dp"
+                android:src="@drawable/crown"
+                app:layout_constraintEnd_toEndOf="@+id/winPanel"
+                app:layout_constraintStart_toStartOf="@+id/winPanel"
+                app:layout_constraintTop_toBottomOf="@+id/end" />
+
+            <Button
+                android:id="@+id/quit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
+                android:text="@string/quit"
+                android:backgroundTint="@color/panel_background"
+                app:layout_constraintEnd_toEndOf="@+id/winPanel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/crown" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/panelContainer"
-            android:layout_width="350dp"
-            android:layout_height="500dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:translationZ="2dp"
             android:visibility="gone">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cardView"
-                android:layout_width="350dp"
-                android:layout_height="500dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-            </androidx.cardview.widget.CardView>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
             <Button
                 android:id="@+id/start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/start"
-                app:layout_constraintBottom_toBottomOf="@+id/cardView"
-                app:layout_constraintEnd_toEndOf="@+id/cardView"
-                app:layout_constraintStart_toStartOf="@+id/cardView"
-                app:layout_constraintTop_toTopOf="@+id/cardView" />
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/app_name"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/panel_background"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/cardView"
-                app:layout_constraintVertical_bias="0.19999999" />
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:translationZ="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name"
+                android:textSize="40sp"
+                android:textColor="@color/black"
+                android:fontFamily="serif-monospace"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.19999999"
+                tools:text="Makao"/>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:textSize="80sp"
-            android:id="@+id/end"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
