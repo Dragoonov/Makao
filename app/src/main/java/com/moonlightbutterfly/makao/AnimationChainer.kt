@@ -17,6 +17,10 @@ class AnimationChainer {
         provideNextAnim()
     }
 
+    fun stop() {
+        nextAnim?.pause()
+    }
+
     private fun provideNextAnim() {
         if (index < animations.size) {
             nextAnim = animations[index++]()

@@ -53,7 +53,7 @@ class OptionsHighlighter private constructor() {
             if (cardWasPlaced) {
                 it.rank == topCard.rank
             } else {
-                it.rank == topCard.rank || it.suit == topCard.suit || (it == CardPeeker.QUEEN_OF_SPADES)
+                it.rank == topCard.rank || it.suit == topCard.suit || (it.rank == Rank.QUEEN)
             }
         }, ((cardsTakenInRound >= ONE) or cardWasPlaced).not(), ((cardsTakenInRound >= ONE) or cardWasPlaced))
     }

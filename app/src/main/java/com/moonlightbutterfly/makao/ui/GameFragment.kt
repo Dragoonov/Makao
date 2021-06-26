@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.animation.doOnStart
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.transition.*
 import com.moonlightbutterfly.makao.*
@@ -133,6 +134,7 @@ class GameFragment : Fragment() {
                     scaleY(1f)
                     start()
                 }
+                animationChainer.stop()
             }
             drawPossible.observe(viewLifecycleOwner) {
                 binding.deck.apply {
@@ -178,7 +180,11 @@ class GameFragment : Fragment() {
                     onRoundFinished()
                 }.start()
             }
-            quit.setOnClickListener { activity?.finish() }
+            quit.setOnClickListener {
+                activity?.supportFragmentManager?.commit {
+                    replace(R.id.fragment_host, GameFragment())
+                }
+            }
         }
         imageProvider = CardImageProvider(requireContext())
         cardsDistance = binding.cardsAnchor.layoutParams.width.toFloat()
