@@ -1,5 +1,6 @@
 package com.moonlightbutterfly.makao
 
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,9 +13,10 @@ class GameViewModel : ViewModel() {
     private val arthur = Player(ARTHUR, mutableListOf())
     private val mainPlayer = Player(MAIN_PLAYER, mutableListOf())
     private val cardsHighlighter = OptionsHighlighter.instance
+    private var effect: Effect? = null
     private val game = Game(listOf(john, arthur, mainPlayer)).apply {
         setOnEffectListener {
-            _effectLiveData.postValue(it)
+            effect = it
         }
     }
 
@@ -23,9 +25,6 @@ class GameViewModel : ViewModel() {
 
     private val _possibleMoves = MutableLiveData<List<Card>>()
     val possibleMoves: LiveData<List<Card>> = _possibleMoves
-
-    private val _effectLiveData = MutableLiveData<Effect>()
-    val effectLiveData: LiveData<Effect> = _effectLiveData
 
     private val _drawPossible = MutableLiveData<Boolean>()
     val drawPossible: LiveData<Boolean> = _drawPossible
@@ -58,18 +57,16 @@ class GameViewModel : ViewModel() {
             add(HideInterfaceAction())
             addAll(getNextTurnsActions())
             add(ShowInterfaceAction())
+            if (effect is RequireRankEffect || effect is RequireSuitEffect) {
+                add(ShowEffectAction(effect!!))
+            }
         })
     }
 
     private fun getNextTurnsActions(): List<Action> = mutableListOf<Action>().apply {
-        repeat(PLAYERS_COUNT) {
+        for (i in 1..PLAYERS_COUNT) {
             val receivedActions = game.nextTurn(MAIN_PLAYER)
             addAll(receivedActions)
-            if (arthur.hand.isEmpty()) {
-                _gameEnded.postValue(ARTHUR)
-            } else if (john.hand.isEmpty()) {
-                _gameEnded.postValue(JOHN)
-            }
         }
     }
 

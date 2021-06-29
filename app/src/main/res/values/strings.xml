@@ -7,4 +7,5 @@
     <string name="effect_needed">%s is needed</string>
     <string name="game_ended">%s won!</string>
     <string name="quit">Go to menu</string>
+    <string name="is_needed">is needed</string>
 </resources>

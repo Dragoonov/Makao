@@ -16,6 +16,15 @@ class CardImageProvider(private val context: Context) {
         Suit.SPADES to SpadesProvider(),
     )
 
+    private val suitProviderMap = mapOf(
+        Suit.DIAMONDS to ContextCompat.getDrawable(context, R.drawable.card_diamond),
+        Suit.HEARTS to ContextCompat.getDrawable(context, R.drawable.card_hearts),
+        Suit.CLUBS to ContextCompat.getDrawable(context, R.drawable.card_clubs),
+        Suit.SPADES to ContextCompat.getDrawable(context, R.drawable.card_spade),
+    )
+
+    fun provideSuit(suit: Suit): Drawable? = suitProviderMap[suit]
+
     fun provideCardImage(card: Card): Drawable? = providersMap[card.suit]?.provideCard(card.rank)
 
     fun provideCardBackImage(): Drawable? = ContextCompat.getDrawable(context, R.drawable.blue_back)

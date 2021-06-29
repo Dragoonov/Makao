@@ -2,8 +2,11 @@ package com.moonlightbutterfly.makao.ui
 
 import android.animation.Animator
 import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
@@ -20,6 +23,7 @@ import androidx.transition.*
 import com.moonlightbutterfly.makao.*
 import com.moonlightbutterfly.makao.R
 import com.moonlightbutterfly.makao.databinding.FragmentGameShownBinding
+import com.moonlightbutterfly.makao.effect.Effect
 import com.moonlightbutterfly.makao.effect.RequireRankEffect
 import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 
@@ -79,7 +83,10 @@ class GameFragment : Fragment() {
                                         childFragmentManager,
                                         RankChoiceDialog.TAG
                                     )
-                                    else -> gameViewModel.onCardPlacedOnTop(cardWrapper)
+                                    else -> {
+                                        gameViewModel.onCardPlacedOnTop(cardWrapper)
+                                        checkForGameEnd()
+                                    }
                                 }
                                 it.align(binding.topCard) {
                                     removeCardFromBoard(cards, binding.cardsAnchor, it, true)
@@ -101,20 +108,8 @@ class GameFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.v("On create view", "oncreateview")
         gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java).apply{
-            effectLiveData.observe(viewLifecycleOwner) {
-                binding.effect.text = when (it) {
-                    is RequireSuitEffect -> {
-                        getString(R.string.effect_needed, it.getSuit())
-                    }
-                    is RequireRankEffect -> {
-                        getString(R.string.effect_needed, it.getRank())
-                    }
-                    else -> {
-                        ""
-                    }
-                }
-            }
             animationsToPerform.observe(viewLifecycleOwner) {
                 val animations = mutableListOf<() -> Animator>().apply {
                     addAll(getAnimationsForActions(it))
@@ -124,17 +119,6 @@ class GameFragment : Fragment() {
                     lockActions(false)
                     gameViewModel.updateHighlight()
                 }
-            }
-            gameEnded.observe(viewLifecycleOwner) {
-                binding.end.text = getString(R.string.game_ended, it)
-                binding.endPanel.animate().apply {
-                    interpolator = AccelerateInterpolator()
-                    duration = 200
-                    scaleX(1f)
-                    scaleY(1f)
-                    start()
-                }
-                animationChainer.stop()
             }
             drawPossible.observe(viewLifecycleOwner) {
                 binding.deck.apply {
@@ -156,13 +140,13 @@ class GameFragment : Fragment() {
             }
         }
         binding = FragmentGameShownBinding.inflate(layoutInflater).apply {
-            panelContainer.visibility = View.VISIBLE
+            startPanel.visibility = View.VISIBLE
             start.setOnClickListener {
-                panelContainer.animate().apply {
+                startPanel.animate().apply {
                     duration = 250
                     x(1500f)
                 }.withEndAction {
-                    panelContainer.visibility = View.GONE
+                    startPanel.visibility = View.GONE
                     gameViewModel.onStartGame()
                 }.start()
             }
@@ -222,8 +206,32 @@ class GameFragment : Fragment() {
             targetDrawable = imageProvider.provideCardImageRotated(wrapper.card)
         ) {
             removeCardFromBoard(cards, anchor, wrapper.imageView)
+            checkForGameEnd()
         }
     }
+
+    private fun checkForGameEnd(): Boolean =
+        when {
+            arthurCards.isEmpty() -> {
+                animationChainer.stop()
+                lockActions(false)
+                reactToWin(GameViewModel.ARTHUR)
+                true
+            }
+            johnCards.isEmpty() -> {
+                animationChainer.stop()
+                lockActions(false)
+                reactToWin(GameViewModel.JOHN)
+                true
+            }
+            cards.isEmpty() -> {
+                animationChainer.stop()
+                lockActions(false)
+                reactToWin(GameViewModel.MAIN_PLAYER)
+                true
+            }
+            else -> false
+        }
 
     private fun onRoundFinished() {
         lockActions(true)
@@ -259,11 +267,36 @@ class GameFragment : Fragment() {
                 } else {
                     { johnPlaceCard(it.card) }
                 }
+                is ShowEffectAction -> { { reactToShowEffect(it.effect) } }
                 else -> error("Wrong action")
             }
             animation.let { anim -> animations.add(anim) }
         }
         return animations
+    }
+
+    private fun reactToShowEffect(effect: Effect): Animator {
+        return AnimatorSet().apply {
+            doOnStart {
+                binding.effectPanel.visibility = View.VISIBLE
+                if (effect is RequireSuitEffect) {
+                    binding.effect.setImageDrawable(imageProvider.provideSuit(effect.getSuit()))
+                } else if (effect is RequireRankEffect) {
+                    binding.effect.setImageDrawable(imageProvider.provideCardImage(Card(effect.getRank(), Suit.SPADES)))
+                }
+            }
+        }
+    }
+
+    private fun reactToWin(name: String) {
+        binding.end.text = getString(R.string.game_ended, name)
+        binding.endPanel.animate().apply {
+            scaleX(1f)
+            scaleY(1f)
+            duration = 200
+            interpolator = AccelerateInterpolator()
+            start()
+        }
     }
 
     private fun hide(): Animator {

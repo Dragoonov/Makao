@@ -13,17 +13,6 @@ class OptionsHighlighter private constructor() {
         cardWasPlaced: Boolean,
         effect: Effect? = null
     ): HighlightInfo {
-        if (topCard.rank == Rank.QUEEN) {
-            return HighlightInfo(
-                if (cardWasPlaced) {
-                    emptyList()
-                } else {
-                    hand.toList()
-                },
-                ((cardsTakenInRound >= ONE) or cardWasPlaced).not(),
-                (cardWasPlaced or (cardsTakenInRound >= ONE))
-            )
-        }
         return if (effect == null) {
             provideCardsForNoEffect(hand, topCard, cardsTakenInRound, cardWasPlaced)
         } else {
@@ -50,10 +39,16 @@ class OptionsHighlighter private constructor() {
         cardWasPlaced: Boolean
     ): HighlightInfo {
         return HighlightInfo(hand.filter {
-            if (cardWasPlaced) {
-                it.rank == topCard.rank
-            } else {
-                it.rank == topCard.rank || it.suit == topCard.suit || (it.rank == Rank.QUEEN)
+            when {
+                topCard.rank == Rank.QUEEN && cardWasPlaced.not() -> {
+                    true
+                }
+                cardWasPlaced -> {
+                    it.rank == topCard.rank
+                }
+                else -> {
+                    it.rank == topCard.rank || it.suit == topCard.suit || (it.rank == Rank.QUEEN)
+                }
             }
         }, ((cardsTakenInRound >= ONE) or cardWasPlaced).not(), ((cardsTakenInRound >= ONE) or cardWasPlaced))
     }
@@ -73,11 +68,7 @@ class OptionsHighlighter private constructor() {
                 if (cardWasPlaced) {
                     it.rank == topCard.rank
                 } else {
-                    it.rank in listOf(Rank.TWO, Rank.THREE) || it in listOf(
-                        CardPeeker.QUEEN_OF_SPADES,
-                        CardPeeker.KING_OF_HEARTS,
-                        CardPeeker.KING_OF_SPADES
-                    )
+                    (it.rank in listOf(Rank.TWO, Rank.THREE, Rank.KING) && it.suit == topCard.suit) || it == CardPeeker.QUEEN_OF_SPADES
                 }
             }
         }, ((cardsTakenInRound >= cardsAmount) or cardWasPlaced).not(), cardWasPlaced or (cardsTakenInRound >= cardsAmount))

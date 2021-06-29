@@ -110,9 +110,12 @@ class Game(private val players: List<Player>) {
 
     private fun calculateEffectPersistence() {
         val conditionForDrawCards = boardState.effect is DrawCardsEffect && boardState.cardsTakenInRound >= (boardState.effect as DrawCardsEffect).getCardsAmount()
-        val conditionForWaitTurn = boardState.effect is WaitTurnEffect
+        val conditionForWaitTurn = boardState.effect is WaitTurnEffect && (boardState.effect as WaitTurnEffect).getTurnsNumber() <= 0
         if (conditionForDrawCards or conditionForWaitTurn) {
             boardState.effect = null
+        }
+        if (boardState.effect is WaitTurnEffect) {
+            (boardState.effect as WaitTurnEffect).decreaseTurn()
         }
     }
 
