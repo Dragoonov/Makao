@@ -68,7 +68,9 @@ class OptionsHighlighter private constructor() {
                 if (cardWasPlaced) {
                     it.rank == topCard.rank
                 } else {
-                    (it.rank in listOf(Rank.TWO, Rank.THREE, Rank.KING) && it.suit == topCard.suit) || it == CardPeeker.QUEEN_OF_SPADES
+                    val isDrawCard = it.rank in listOf(Rank.TWO, Rank.THREE, Rank.KING)
+                    val isNotNeutralKing = it !in listOf(Card(Rank.KING, Suit.HEARTS), Card(Rank.KING, Suit.SPADES))
+                    (isDrawCard && it.suit == topCard.suit && isNotNeutralKing) || it == CardPeeker.QUEEN_OF_SPADES
                 }
             }
         }, ((cardsTakenInRound >= cardsAmount) or cardWasPlaced).not(), cardWasPlaced or (cardsTakenInRound >= cardsAmount))

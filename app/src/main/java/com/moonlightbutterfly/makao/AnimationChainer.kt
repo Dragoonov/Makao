@@ -24,15 +24,16 @@ class AnimationChainer {
     }
 
     private fun provideNextAnim() {
-        if (stopped.not())
-        if (index < animations.size) {
-            nextAnim = animations[index++]()
-            nextAnim?.apply {
-                doOnEnd { provideNextAnim() }
-                start()
+        if (stopped.not()) {
+            if (index < animations.size) {
+                nextAnim = animations[index++]()
+                nextAnim?.apply {
+                    doOnEnd { provideNextAnim() }
+                    start()
+                }
+            } else {
+                doOnEnd()
             }
-        } else {
-            doOnEnd()
         }
     }
 }

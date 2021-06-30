@@ -2,8 +2,6 @@ package com.moonlightbutterfly.makao.ui
 
 import android.animation.Animator
 import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +13,7 @@ import android.widget.ImageView
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -88,11 +87,11 @@ class GameFragment : Fragment() {
                                         checkForGameEnd()
                                     }
                                 }
-                                it.align(binding.topCard) {
-                                    removeCardFromBoard(cards, binding.cardsAnchor, it, true)
+                                it.alignWithTopCardAnimation(binding.topCard).apply {
+                                    doOnEnd { _ -> removeCardFromBoard(cards, binding.cardsAnchor, it, true) }
                                 }.start()
                             } else {
-                                it.moveBack(initialX, initialY).start()
+                                it.moveAnimation(targetX = initialX, targetY = initialY, durationAnim = 250).start()
                             }
                         }
                         true
@@ -109,7 +108,7 @@ class GameFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         Log.v("On create view", "oncreateview")
-        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java).apply{
+        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java).apply {
             animationsToPerform.observe(viewLifecycleOwner) {
                 val animations = mutableListOf<() -> Animator>().apply {
                     addAll(getAnimationsForActions(it))
@@ -184,11 +183,7 @@ class GameFragment : Fragment() {
         val newView = getCardView(card, true)
         binding.layout.addView(newView)
         cards.add(CardWrapper(card, newView))
-        return newView.drawAnimation(
-            binding.deck,
-            anchor,
-            distance * (cards.size-1)
-        )
+        return newView.drawAnimation(binding.deck, anchor, distance * (cards.size - 1))
     }
 
     private fun arthurPlaceCard(card: Card) = enemyPlaceCard(card, binding.arthurAnchor, arthurCards)
@@ -201,12 +196,14 @@ class GameFragment : Fragment() {
         cards: MutableList<CardWrapper>
     ): Animator {
         val wrapper = cards.first { it.card == card }
-        return wrapper.imageView.placeCardOnTopAnimation(
+        return wrapper.imageView.moveAndScaleAndFlipAnimation(
             card = binding.topCard,
             targetDrawable = imageProvider.provideCardImageRotated(wrapper.card)
-        ) {
-            removeCardFromBoard(cards, anchor, wrapper.imageView)
-            checkForGameEnd()
+        ).apply {
+            doOnEnd {
+                removeCardFromBoard(cards, anchor, wrapper.imageView)
+                checkForGameEnd()
+            }
         }
     }
 
@@ -246,8 +243,12 @@ class GameFragment : Fragment() {
         val animations = mutableListOf<() -> Animator>()
         actions.forEach {
             val animation = when (it) {
-                is HideInterfaceAction -> { { hide() } }
-                is ShowInterfaceAction -> { { show() } }
+                is HideInterfaceAction -> {
+                    { hide() }
+                }
+                is ShowInterfaceAction -> {
+                    { show() }
+                }
                 is InitializeCardAction -> {
                     { initializeCard(it.card) }
                 }
@@ -267,7 +268,9 @@ class GameFragment : Fragment() {
                 } else {
                     { johnPlaceCard(it.card) }
                 }
-                is ShowEffectAction -> { { reactToShowEffect(it.effect) } }
+                is ShowEffectAction -> {
+                    { reactToShowEffect(it.effect) }
+                }
                 else -> error("Wrong action")
             }
             animation.let { anim -> animations.add(anim) }
@@ -301,8 +304,8 @@ class GameFragment : Fragment() {
 
     private fun hide(): Animator {
         val cardsAnimations = mutableListOf<Animator>()
-        cardsAnimations.addAll(cards.map { it.imageView.hide() })
-        cardsAnimations.addAll((johnCards + arthurCards).map { it.imageView.enemyShow() })
+        cardsAnimations.addAll(cards.map { it.imageView.hideCard() })
+        cardsAnimations.addAll((johnCards + arthurCards).map { it.imageView.enemyCardShow() })
         return AnimatorSet().apply {
             playTogether(cardsAnimations)
             doOnStart { updateConstraints(R.layout.fragment_game_hidden) }
@@ -311,8 +314,8 @@ class GameFragment : Fragment() {
 
     private fun show(): Animator {
         val cardsAnimations = mutableListOf<Animator>()
-        cardsAnimations.addAll(cards.map { it.imageView.show() })
-        cardsAnimations.addAll((johnCards + arthurCards).map { it.imageView.enemyHide() })
+        cardsAnimations.addAll(cards.map { it.imageView.showCard() })
+        cardsAnimations.addAll((johnCards + arthurCards).map { it.imageView.enemyCardHide() })
         return AnimatorSet().apply {
             playTogether(cardsAnimations)
             doOnStart { updateConstraints(R.layout.fragment_game_shown) }
@@ -326,7 +329,7 @@ class GameFragment : Fragment() {
         duration: Long = 250
     ) {
         cards.map { it.imageView }.forEachIndexed { index, imageView ->
-            imageView.moveX(initialPosition + index * distance, duration)
+            imageView.moveAnimation(targetX = initialPosition + index * distance, durationAnim = duration, ignoreY = true).start()
         }
     }
 
@@ -360,11 +363,13 @@ class GameFragment : Fragment() {
             binding.deck,
             binding.cardsAnchor,
             cardsDistance * (cards.size - 1)
-        ) {
-            val distance = cardsDistance
-            recalculateCardsDistance()
-            if (distance != cardsDistance) {
-                reorderHand(binding.cardsAnchor.x, cardsDistance, cards)
+        ).apply {
+            doOnEnd {
+                val distance = cardsDistance
+                recalculateCardsDistance()
+                if (distance != cardsDistance) {
+                    reorderHand(binding.cardsAnchor.x, cardsDistance, cards)
+                }
             }
         }
     }
@@ -375,11 +380,13 @@ class GameFragment : Fragment() {
         return cardView.initializeTopCard(
             binding.deck,
             binding.topCard
-        ) {
-            binding.topCard.setImageDrawable(
-                imageProvider.provideCardImage(card)
-            )
-            binding.layout.removeView(cardView)
+        ).apply {
+            doOnEnd {
+                binding.topCard.setImageDrawable(
+                    imageProvider.provideCardImage(card)
+                )
+                binding.layout.removeView(cardView)
+            }
         }
     }
 
@@ -416,10 +423,10 @@ class GameFragment : Fragment() {
         reorderHand(anchor.x, distance, cards)
     }
 
-    private fun ImageView.enemyHide() = this.move(70f) { a, b -> a - b }
-    private fun ImageView.enemyShow() = this.move(70f) { a, b -> a + b }
-    private fun ImageView.hide() = this.move(382f) { a, b -> a + b }
-    private fun ImageView.show() = this.move(382f) { a, b -> a - b }
+    private fun ImageView.enemyCardHide() = this.move(70f) { a, b -> a - b }
+    private fun ImageView.enemyCardShow() = this.move(70f) { a, b -> a + b }
+    private fun ImageView.hideCard() = this.move(382f) { a, b -> a + b }
+    private fun ImageView.showCard() = this.move(382f) { a, b -> a - b }
     private fun Card.isAce() = this.rank == Rank.ACE
     private fun Card.isJack() = this.rank == Rank.JACK
 

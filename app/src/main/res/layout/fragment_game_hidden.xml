@@ -24,7 +24,7 @@
             android:layout_height="72dp"
             android:src="@drawable/two_hearts"
             android:translationY="-60dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.05"
@@ -38,7 +38,7 @@
             android:layout_height="72dp"
             android:src="@drawable/two_spades"
             android:translationY="-60dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.95"
@@ -86,7 +86,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
             android:translationY="275dp"
-            android:visibility="invisible"
+            android:visibility="visible"
             android:translationZ="11dp"/>
 
         <ImageView
@@ -161,6 +161,7 @@
                 android:id="@+id/winPanel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:visibility="gone"
                 android:background="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
