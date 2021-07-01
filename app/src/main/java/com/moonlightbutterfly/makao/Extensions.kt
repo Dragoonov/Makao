@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.view.children
-import com.moonlightbutterfly.makao.ui.Utils
+import com.moonlightbutterfly.makao.utils.Utils
 
 fun ImageView.moveAnimation(
     sourceX: Float = this.x,

@@ -1,4 +1,4 @@
-package com.moonlightbutterfly.makao
+package com.moonlightbutterfly.makao.dataclasses
 
 import com.moonlightbutterfly.makao.effect.Effect
 

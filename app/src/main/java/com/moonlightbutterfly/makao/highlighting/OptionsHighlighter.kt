@@ -1,7 +1,10 @@
 package com.moonlightbutterfly.makao.highlighting
 
 import com.moonlightbutterfly.makao.*
+import com.moonlightbutterfly.makao.dataclasses.Card
+import com.moonlightbutterfly.makao.dataclasses.HighlightInfo
 import com.moonlightbutterfly.makao.effect.*
+import com.moonlightbutterfly.makao.utils.CardPeeker
 
 
 class OptionsHighlighter private constructor() {

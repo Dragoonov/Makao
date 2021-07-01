@@ -1,4 +1,8 @@
-package com.moonlightbutterfly.makao
+package com.moonlightbutterfly.makao.utils
+
+import com.moonlightbutterfly.makao.dataclasses.Card
+import com.moonlightbutterfly.makao.Rank
+import com.moonlightbutterfly.makao.Suit
 
 class CardPeeker {
     companion object {

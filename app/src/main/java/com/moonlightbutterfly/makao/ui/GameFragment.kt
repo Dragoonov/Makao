@@ -9,7 +9,6 @@ import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.BounceInterpolator
-import android.widget.ImageView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -23,9 +22,14 @@ import androidx.transition.*
 import com.moonlightbutterfly.makao.*
 import com.moonlightbutterfly.makao.R
 import com.moonlightbutterfly.makao.databinding.FragmentGameShownBinding
+import com.moonlightbutterfly.makao.dataclasses.Card
+import com.moonlightbutterfly.makao.dataclasses.CardWrapper
 import com.moonlightbutterfly.makao.effect.Effect
 import com.moonlightbutterfly.makao.effect.RequireRankEffect
 import com.moonlightbutterfly.makao.effect.RequireSuitEffect
+import com.moonlightbutterfly.makao.utils.AnimationChainer
+import com.moonlightbutterfly.makao.utils.CardImageProvider
+import com.moonlightbutterfly.makao.utils.Utils
 
 class GameFragment : Fragment() {
 

@@ -3,6 +3,8 @@ package com.moonlightbutterfly.makao
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.moonlightbutterfly.makao.dataclasses.Card
+import com.moonlightbutterfly.makao.dataclasses.CardWrapper
 import com.moonlightbutterfly.makao.effect.*
 import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 

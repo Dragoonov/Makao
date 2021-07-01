@@ -1,4 +1,4 @@
-package com.moonlightbutterfly.makao
+package com.moonlightbutterfly.makao.dataclasses
 
 data class HighlightInfo(
     val cardsToPlay: List<Card>,

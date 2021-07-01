@@ -1,4 +1,4 @@
-package com.moonlightbutterfly.makao
+package com.moonlightbutterfly.makao.utils
 
 import android.animation.Animator
 import androidx.core.animation.doOnEnd

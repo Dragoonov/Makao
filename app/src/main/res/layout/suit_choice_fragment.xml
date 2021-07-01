@@ -7,7 +7,7 @@
         <import type="com.moonlightbutterfly.makao.Suit" />
         <variable
             name="fragment"
-            type="com.moonlightbutterfly.makao.SuitChoiceDialog" />
+            type="com.moonlightbutterfly.makao.ui.SuitChoiceDialog" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

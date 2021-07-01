@@ -1,5 +1,7 @@
 package com.moonlightbutterfly.makao
 
+import com.moonlightbutterfly.makao.dataclasses.Card
+import com.moonlightbutterfly.makao.dataclasses.Player
 import com.moonlightbutterfly.makao.effect.Effect
 
 interface Action

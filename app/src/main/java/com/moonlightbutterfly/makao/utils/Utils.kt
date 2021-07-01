@@ -1,12 +1,10 @@
-package com.moonlightbutterfly.makao.ui
+package com.moonlightbutterfly.makao.utils
 
 import android.content.Context
-import android.graphics.Color
 import android.util.DisplayMetrics
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
-import com.moonlightbutterfly.makao.CardWrapper
+import com.moonlightbutterfly.makao.dataclasses.CardWrapper
 import com.moonlightbutterfly.makao.R
 
 object Utils {

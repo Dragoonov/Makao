@@ -1,4 +1,4 @@
-package com.moonlightbutterfly.makao
+package com.moonlightbutterfly.makao.utils
 
 import android.content.Context
 import android.graphics.Canvas
@@ -6,6 +6,10 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import com.moonlightbutterfly.makao.dataclasses.Card
+import com.moonlightbutterfly.makao.R
+import com.moonlightbutterfly.makao.Rank
+import com.moonlightbutterfly.makao.Suit
 
 class CardImageProvider(private val context: Context) {
 

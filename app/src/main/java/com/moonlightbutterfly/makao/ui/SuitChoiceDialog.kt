@@ -1,20 +1,17 @@
-package com.moonlightbutterfly.makao
+package com.moonlightbutterfly.makao.ui
 
 
 import android.app.Dialog
-import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
+import com.moonlightbutterfly.makao.R
+import com.moonlightbutterfly.makao.Suit
 import com.moonlightbutterfly.makao.databinding.SuitChoiceFragmentBinding
-import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 
 class SuitChoiceDialog(private val listener: (suit: Suit) -> Unit) : DialogFragment() {
 

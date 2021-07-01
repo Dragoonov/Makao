@@ -1,6 +1,9 @@
 package com.moonlightbutterfly.makao.ai
 
 import com.moonlightbutterfly.makao.*
+import com.moonlightbutterfly.makao.dataclasses.BoardState
+import com.moonlightbutterfly.makao.dataclasses.Card
+import com.moonlightbutterfly.makao.dataclasses.Player
 import com.moonlightbutterfly.makao.effect.Effect
 import com.moonlightbutterfly.makao.effect.RequireRankEffect
 import com.moonlightbutterfly.makao.effect.RequireSuitEffect

@@ -2,7 +2,11 @@ package com.moonlightbutterfly.makao
 
 import com.moonlightbutterfly.makao.ai.AI
 import com.moonlightbutterfly.makao.ai.AIOutput
+import com.moonlightbutterfly.makao.dataclasses.BoardState
+import com.moonlightbutterfly.makao.dataclasses.Card
+import com.moonlightbutterfly.makao.dataclasses.Player
 import com.moonlightbutterfly.makao.effect.*
+import com.moonlightbutterfly.makao.utils.CardPeeker
 
 class Game(playerNames: List<String>) {
 

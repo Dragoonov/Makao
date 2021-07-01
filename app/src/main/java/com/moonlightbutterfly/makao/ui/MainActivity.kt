@@ -1,10 +1,10 @@
-package com.moonlightbutterfly.makao
+package com.moonlightbutterfly.makao.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import com.moonlightbutterfly.makao.ui.GameFragment
+import com.moonlightbutterfly.makao.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
