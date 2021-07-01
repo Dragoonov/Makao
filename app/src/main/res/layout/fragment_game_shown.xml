@@ -16,7 +16,7 @@
         android:background="@color/game_background"
         android:layout_height="match_parent">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/johnAnchor"
             android:layout_width="47dp"
             android:layout_height="72dp"
@@ -30,7 +30,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/arthurAnchor"
             android:layout_width="47dp"
             android:layout_height="72dp"
@@ -45,7 +45,7 @@
             app:layout_constraintVertical_bias="0" />
 
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/topCard"
             android:layout_width="105dp"
             android:layout_height="162dp"
@@ -66,13 +66,13 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" >
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/panel_background"/>
         </androidx.cardview.widget.CardView>
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/cardsAnchor"
             android:src="@drawable/ace_spades"
             android:layout_width="47dp"
@@ -87,7 +87,7 @@
             android:visibility="visible"
             android:translationZ="11dp"/>
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/finishRound"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -102,7 +102,7 @@
             app:layout_constraintTop_toTopOf="@+id/panel"
             app:layout_constraintVertical_bias="0.4"/>
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/deck"
             android:layout_width="70dp"
             android:layout_height="108dp"
@@ -124,7 +124,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:visibility="gone">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/effect"
                 android:layout_width="wrap_content"
                 android:scaleType="fitStart"
@@ -159,7 +159,7 @@
             android:visibility="gone"
             android:translationZ="11dp">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/winPanel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -180,7 +180,7 @@
                 app:layout_constraintStart_toStartOf="@+id/winPanel"
                 app:layout_constraintTop_toTopOf="@+id/winPanel" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/crown"
                 android:layout_width="50dp"
                 android:layout_height="50dp"

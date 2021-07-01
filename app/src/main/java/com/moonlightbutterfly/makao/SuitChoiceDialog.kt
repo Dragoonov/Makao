@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +19,6 @@ import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 class SuitChoiceDialog(private val listener: (suit: Suit) -> Unit) : DialogFragment() {
 
     private lateinit var binding: SuitChoiceFragmentBinding
-    private lateinit var viewModel: GameViewModel
     private var suitChosen = Suit.HEARTS
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -35,17 +35,12 @@ class SuitChoiceDialog(private val listener: (suit: Suit) -> Unit) : DialogFragm
             .create()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setSuit(binding.clubs, Suit.CLUBS)
-    }
-
     fun setSuit(view: View, suit: Suit) {
-        view as ImageView
+        view as AppCompatImageView
         (binding.root as ViewGroup).children.forEach {
-            (it as ImageView).setColorFilter(Color.argb(0, 0, 0, 0))
+            (it as AppCompatImageView).setColorFilter(requireContext().getColor(R.color.no_tint))
         }
-        view.setColorFilter(Color.argb(100, 255, 255, 0))
+        view.setColorFilter(requireContext().getColor(R.color.highlight))
         suitChosen = suit
 
     }

@@ -5,11 +5,13 @@ import android.graphics.Color
 import android.util.DisplayMetrics
 import android.view.View
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.moonlightbutterfly.makao.CardWrapper
+import com.moonlightbutterfly.makao.R
 
 object Utils {
 
-    fun isCardNearCenter(card: ImageView, center: View): Boolean {
+    fun isCardNearCenter(card: AppCompatImageView, center: View): Boolean {
         val (width, height) = (card.x + card.width / 2) to (card.y + card.height / 2)
         val isXInside = width > center.x && width < center.x + center.width
         val isYInside = height > center.y && height < center.y + center.height
@@ -19,17 +21,17 @@ object Utils {
     fun highlightCard(wrapper: CardWrapper, shouldHighlight: Boolean) {
         wrapper.highlighted = shouldHighlight
         if (shouldHighlight) {
-            wrapper.imageView.setColorFilter(Color.argb(100, 255, 255, 0))
+            wrapper.imageView.setColorFilter(wrapper.imageView.context.getColor(R.color.highlight))
         } else {
-            wrapper.imageView.setColorFilter(Color.argb(0, 0, 0, 0))
+            wrapper.imageView.setColorFilter(wrapper.imageView.context.getColor(R.color.no_tint))
         }
     }
 
-    fun highlightCard(imageView: ImageView, highlight: Boolean) {
+    fun highlightCard(imageView: AppCompatImageView, highlight: Boolean) {
         if (highlight) {
-            imageView.setColorFilter(Color.argb(100, 255, 255, 0))
+            imageView.setColorFilter(imageView.context.getColor(R.color.highlight))
         } else {
-            imageView.setColorFilter(Color.argb(0, 0, 0, 0))
+            imageView.setColorFilter(imageView.context.getColor(R.color.no_tint))
         }
     }
 

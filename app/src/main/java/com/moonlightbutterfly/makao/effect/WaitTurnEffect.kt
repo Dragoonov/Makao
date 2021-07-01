@@ -5,7 +5,9 @@ class WaitTurnEffect(private var turnsNumber: Int) : Effect {
     private operator fun minus (effect: WaitTurnEffect) = WaitTurnEffect(this.turnsNumber - effect.turnsNumber)
     fun getTurnsNumber() = turnsNumber
     fun decreaseTurn() {
-        turnsNumber -= 1
+        if (turnsNumber > 0) {
+            turnsNumber -= 1
+        }
     }
     override fun merge(effect: Effect?): Effect? {
         return if (effect is WaitTurnEffect) {

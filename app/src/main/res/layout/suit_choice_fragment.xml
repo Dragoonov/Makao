@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
+<layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/clubs"
             android:layout_width="70dp"
             android:layout_height="100dp"
@@ -26,9 +26,10 @@
             app:layout_constraintEnd_toStartOf="@+id/diamonds"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ace_clubs" />
+            app:srcCompat="@drawable/ace_clubs"
+            android:tint="@color/highlight" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/diamonds"
             android:layout_width="70dp"
             android:layout_height="100dp"
@@ -42,7 +43,7 @@
             app:layout_constraintTop_toTopOf="@+id/clubs"
             app:srcCompat="@drawable/ace_diamonds" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/hearts"
             android:layout_width="70dp"
             android:layout_height="100dp"
@@ -56,7 +57,7 @@
             app:layout_constraintTop_toTopOf="@+id/diamonds"
             app:srcCompat="@drawable/ace_hearts" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/spades"
             android:layout_width="70dp"
             android:layout_height="100dp"

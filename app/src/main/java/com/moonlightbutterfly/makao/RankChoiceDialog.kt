@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
@@ -36,17 +37,12 @@ class RankChoiceDialog(private val listener: (rank: Rank) -> Unit) : DialogFragm
             .create()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setRank(binding.five, Rank.FIVE)
-    }
-
     fun setRank(view:View, rank: Rank) {
-        view as ImageView
+        view as AppCompatImageView
         (binding.root as ViewGroup).children.forEach {
-            (it as ImageView).setColorFilter(Color.argb(0, 0, 0, 0))
+            (it as AppCompatImageView).setColorFilter(requireContext().getColor(R.color.no_tint))
         }
-        view.setColorFilter(Color.argb(100, 255, 255, 0))
+        view.setColorFilter(requireContext().getColor(R.color.highlight))
         rankChosen = rank
     }
 

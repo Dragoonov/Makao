@@ -1,6 +1,5 @@
 package com.moonlightbutterfly.makao
 
-import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,19 +8,16 @@ import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 
 class GameViewModel : ViewModel() {
 
-    private val john = Player(JOHN, mutableListOf())
-    private val arthur = Player(ARTHUR, mutableListOf())
-    private val mainPlayer = Player(MAIN_PLAYER, mutableListOf())
     private val cardsHighlighter = OptionsHighlighter.instance
     private var effect: Effect? = null
-    private val game = Game(listOf(john, arthur, mainPlayer)).apply {
+    private val game = Game(listOf(JOHN, ARTHUR, MAIN_PLAYER)).apply {
         setOnEffectListener {
             effect = it
         }
     }
 
-    private val _animationsToPerform = MutableLiveData<List<Action>>()
-    val animationsToPerform: LiveData<List<Action>> = _animationsToPerform
+    private val _actionsToPerform = MutableLiveData<List<Action>>()
+    val actionsToPerform: LiveData<List<Action>> = _actionsToPerform
 
     private val _possibleMoves = MutableLiveData<List<Card>>()
     val possibleMoves: LiveData<List<Card>> = _possibleMoves
@@ -32,28 +28,25 @@ class GameViewModel : ViewModel() {
     private val _finishRoundPossible = MutableLiveData<Boolean>()
     val finishRoundPossible: LiveData<Boolean> = _finishRoundPossible
 
-    private val _gameEnded = MutableLiveData<String>()
-    val gameEnded: LiveData<String> = _gameEnded
+    fun onAnimationsEnded() {
+        updateHighlight()
+    }
 
     fun onCardPlacedOnTop(card: CardWrapper, effect: Effect? = null) {
         game.placeCardOnTop(MAIN_PLAYER, card.card, effect)
-        if (mainPlayer.hand.isEmpty()) {
-            _gameEnded.postValue(MAIN_PLAYER)
-        }
         updateHighlight()
     }
 
     fun onDrawnCard() {
-        _animationsToPerform.postValue(game.drawCard(MAIN_PLAYER))
+        _actionsToPerform.postValue(game.drawCard(MAIN_PLAYER))
     }
 
     fun onStartGame() {
-        _animationsToPerform.postValue(game.startGame())
+        _actionsToPerform.postValue(game.startGame())
     }
 
     fun onTurnFinished() {
-        game.onTurnEnd()
-        _animationsToPerform.postValue(mutableListOf<Action>().apply {
+        _actionsToPerform.postValue(mutableListOf<Action>().apply {
             add(HideInterfaceAction())
             addAll(getNextTurnsActions())
             add(ShowInterfaceAction())
@@ -70,9 +63,9 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    fun updateHighlight() {
+    private fun updateHighlight() {
         val highlightInfo = cardsHighlighter.provideOptionsToHighlight(
-            mainPlayer.hand,
+            game.getPlayerHand(MAIN_PLAYER),
             game.getTopCard(),
             game.getCardsTakenInRound(),
             game.getCardWasPlacedInRound(),
@@ -87,6 +80,6 @@ class GameViewModel : ViewModel() {
         const val MAIN_PLAYER = "You"
         const val ARTHUR = "Arthur"
         const val JOHN = "John"
-        private const val PLAYERS_COUNT = 2
+        private const val PLAYERS_COUNT = 3
     }
 }

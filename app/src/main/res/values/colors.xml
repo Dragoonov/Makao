@@ -9,4 +9,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="game_background">#006000</color>
     <color name="panel_background">#C4FF1F</color>
+    <color name="highlight">#64ffff00</color>
+    <color name="no_tint">#00000000</color>
 </resources>

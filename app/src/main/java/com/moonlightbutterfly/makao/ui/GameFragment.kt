@@ -11,6 +11,7 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.BounceInterpolator
 import android.widget.ImageView
 import androidx.annotation.LayoutRes
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.animation.doOnEnd
@@ -66,7 +67,7 @@ class GameFragment : Fragment() {
                     }
                     MotionEvent.ACTION_UP -> {
                         v?.let {
-                            it as ImageView
+                            it as AppCompatImageView
                             val cardWrapper = cards.first { wrapper -> wrapper.imageView == it }
                             if (Utils.isCardNearCenter(it, binding.topCard) && cardWrapper.highlighted) {
                                 when {
@@ -109,14 +110,14 @@ class GameFragment : Fragment() {
     ): View {
         Log.v("On create view", "oncreateview")
         gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java).apply {
-            animationsToPerform.observe(viewLifecycleOwner) {
+            actionsToPerform.observe(viewLifecycleOwner) {
                 val animations = mutableListOf<() -> Animator>().apply {
                     addAll(getAnimationsForActions(it))
                 }
                 lockActions(true)
                 animationChainer.start(animations) {
                     lockActions(false)
-                    gameViewModel.updateHighlight()
+                    gameViewModel.onAnimationsEnded()
                 }
             }
             drawPossible.observe(viewLifecycleOwner) {
@@ -179,7 +180,7 @@ class GameFragment : Fragment() {
 
     private fun johnDrawCard(card: Card) = enemyDrawCard(card, binding.johnAnchor, enemiesCardsDistance, johnCards)
 
-    private fun enemyDrawCard(card: Card, anchor: ImageView, distance: Float, cards: MutableList<CardWrapper>): Animator {
+    private fun enemyDrawCard(card: Card, anchor: AppCompatImageView, distance: Float, cards: MutableList<CardWrapper>): Animator {
         val newView = getCardView(card, true)
         binding.layout.addView(newView)
         cards.add(CardWrapper(card, newView))
@@ -192,7 +193,7 @@ class GameFragment : Fragment() {
 
     private fun enemyPlaceCard(
         card: Card,
-        anchor: ImageView,
+        anchor: AppCompatImageView,
         cards: MutableList<CardWrapper>
     ): Animator {
         val wrapper = cards.first { it.card == card }
@@ -269,7 +270,7 @@ class GameFragment : Fragment() {
                     { johnPlaceCard(it.card) }
                 }
                 is ShowEffectAction -> {
-                    { reactToShowEffect(it.effect) }
+                    { showEffectAnimation(it.effect) }
                 }
                 else -> error("Wrong action")
             }
@@ -278,7 +279,7 @@ class GameFragment : Fragment() {
         return animations
     }
 
-    private fun reactToShowEffect(effect: Effect): Animator {
+    private fun showEffectAnimation(effect: Effect): Animator {
         return AnimatorSet().apply {
             doOnStart {
                 binding.effectPanel.visibility = View.VISIBLE
@@ -394,8 +395,8 @@ class GameFragment : Fragment() {
         card: Card,
         forEnemy: Boolean = false,
         params: ViewGroup.LayoutParams = binding.cardsAnchor.layoutParams
-    ): ImageView {
-        return ImageView(context).apply {
+    ): AppCompatImageView {
+        return AppCompatImageView(requireContext()).apply {
             val drawable = if (forEnemy) imageProvider.provideCardBackImage() else imageProvider.provideCardImage(card)
             setImageDrawable(drawable)
             z = 10.0f
@@ -405,8 +406,8 @@ class GameFragment : Fragment() {
 
     private fun removeCardFromBoard(
         cards: MutableList<CardWrapper>,
-        anchor: ImageView,
-        card: ImageView,
+        anchor: AppCompatImageView,
+        card: AppCompatImageView,
         recalculateDistance: Boolean = false
     ) {
         val movedCardWrapper = cards.first { wrapper -> wrapper.imageView == card }
@@ -423,10 +424,10 @@ class GameFragment : Fragment() {
         reorderHand(anchor.x, distance, cards)
     }
 
-    private fun ImageView.enemyCardHide() = this.move(70f) { a, b -> a - b }
-    private fun ImageView.enemyCardShow() = this.move(70f) { a, b -> a + b }
-    private fun ImageView.hideCard() = this.move(382f) { a, b -> a + b }
-    private fun ImageView.showCard() = this.move(382f) { a, b -> a - b }
+    private fun AppCompatImageView.enemyCardHide() = this.move(70f) { a, b -> a - b }
+    private fun AppCompatImageView.enemyCardShow() = this.move(70f) { a, b -> a + b }
+    private fun AppCompatImageView.hideCard() = this.move(382f) { a, b -> a + b }
+    private fun AppCompatImageView.showCard() = this.move(382f) { a, b -> a - b }
     private fun Card.isAce() = this.rank == Rank.ACE
     private fun Card.isJack() = this.rank == Rank.JACK
 

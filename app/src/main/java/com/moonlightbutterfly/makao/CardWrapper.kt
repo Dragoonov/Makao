@@ -1,10 +1,9 @@
 package com.moonlightbutterfly.makao
 
-import android.widget.ImageView
-import com.moonlightbutterfly.makao.effect.Effect
+import androidx.appcompat.widget.AppCompatImageView
 
 data class CardWrapper(
     val card: Card,
-    val imageView: ImageView,
+    val imageView: AppCompatImageView,
     var highlighted: Boolean = false
 )

@@ -9,60 +9,83 @@ import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 class AI(private val effectProvider: (Card) -> Effect?) {
 
     private val highlighter = OptionsHighlighter.instance
+    var cardsTakenInRound = 0
+    var cardPlacedInRound = false
 
-    fun getActionsForPlayer(player: Player, boardState: BoardState): Triple<BoardState, List<Action>, Player> {
-        val clonedPlayer = player.copy(name = player.name, hand = player.hand)
-        val clonedBoardState = boardState.clone()
+    fun getActionsForPlayer(player: Player, boardState: BoardState): AIOutput {
         val actions = mutableListOf<Action>()
-        var cardsTakenInRound = 0
-        var cardPlacedInRound = false
+        cardsTakenInRound = 0
+        cardPlacedInRound = false
         var finished = false
         while (!finished) {
             val results = highlighter.provideOptionsToHighlight(
-                clonedPlayer.hand,
-                clonedBoardState.topStack.last(),
+                player.hand,
+                boardState.topStack.last(),
                 cardsTakenInRound,
                 cardPlacedInRound,
-                clonedBoardState.effect)
-            val cardsToPlay = results.cardsToPlay
-            val canTakeCard = results.drawPossible
-            val canFinish = results.finishRoundPossible
+                boardState.effect
+            )
             when {
-                cardsToPlay.isNotEmpty() -> {
-                    val cardToPlay = cardsToPlay.random()
-                    clonedPlayer.hand.remove(cardToPlay)
-                    clonedBoardState.topStack += cardToPlay
-                    actions.add(PlaceCardAction(clonedPlayer, cardToPlay))
-                    cardPlacedInRound = true
-                    var cardEffect = effectProvider(cardToPlay)
-                    if (cardToPlay.rank == Rank.ACE) {
-                        cardEffect = RequireSuitEffect(Suit.values().random())
-                    } else if (cardToPlay.rank == Rank.JACK) {
-                        cardEffect = RequireRankEffect(arrayOf(Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN).random())
-                    }
-                    if (clonedBoardState.effect == null) {
-                        clonedBoardState.effect = cardEffect
-                    } else {
-                        clonedBoardState.effect = clonedBoardState.effect?.merge(cardEffect)
-                    }
+                results.cardsToPlay.isNotEmpty() -> {
+                    val action = calculateCardToPlay(results.cardsToPlay, boardState, player)
+                    actions.add(action)
                 }
-                canFinish -> {
+
+                results.finishRoundPossible -> {
                     finished = true
                 }
-                canTakeCard -> {
-                    val card = clonedBoardState.deck.removeLast()
-                    clonedPlayer.hand.add(card)
-                    actions.add(DrawCardAction(clonedPlayer, card))
-                    cardsTakenInRound += 1
-                    if (clonedBoardState.deck.isEmpty()) {
-                        shuffle(clonedBoardState.deck, clonedBoardState.topStack)
-                    }
+
+                results.drawPossible -> {
+                    val action = drawCard(boardState, player)
+                    actions.add(action)
                 }
             }
-            clonedBoardState.cardsTakenInRound = cardsTakenInRound
-            clonedBoardState.cardPlacedInRound = cardPlacedInRound
+            boardState.cardsTakenInRound = cardsTakenInRound
+            boardState.cardPlacedInRound = cardPlacedInRound
         }
-        return Triple(clonedBoardState, actions, clonedPlayer)
+        return AIOutput(boardState, actions, player)
+    }
+
+    private fun drawCard(boardState: BoardState, player: Player): Action {
+        val card = boardState.deck.removeLast()
+        player.hand.add(card)
+        cardsTakenInRound += 1
+        if (boardState.deck.isEmpty()) {
+            shuffle(boardState.deck, boardState.topStack)
+        }
+        return DrawCardAction(player, card)
+    }
+
+    private fun updateBoardEffect(boardState: BoardState, effect: Effect?) {
+        if (boardState.effect == null) {
+            boardState.effect = effect
+        } else {
+            boardState.effect = boardState.effect?.merge(effect)
+        }
+    }
+
+    private fun calculateCardToPlay(cardsToPlay: List<Card>, boardState: BoardState, player: Player): Action{
+        val cardToPlay = cardsToPlay.random()
+        player.hand.remove(cardToPlay)
+        boardState.topStack += cardToPlay
+        cardPlacedInRound = true
+        val cardEffect = calculateCardEffect(cardToPlay)
+        updateBoardEffect(boardState, cardEffect)
+        return PlaceCardAction(player, cardToPlay)
+    }
+
+    private fun calculateCardEffect(cardToPlay: Card): Effect? {
+        return when (cardToPlay.rank) {
+            Rank.ACE -> {
+                RequireSuitEffect(Suit.values().random())
+            }
+            Rank.JACK -> {
+                RequireRankEffect(arrayOf(Rank.FIVE, Rank.SIX, Rank.SEVEN, Rank.EIGHT, Rank.NINE, Rank.TEN).random())
+            }
+            else -> {
+                effectProvider(cardToPlay)
+            }
+        }
     }
 
     private fun shuffle(deck: MutableList<Card>, topStack: MutableList<Card>) {
