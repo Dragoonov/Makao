@@ -16,7 +16,7 @@ import com.moonlightbutterfly.makao.databinding.SuitChoiceFragmentBinding
 class SuitChoiceDialog(private val listener: (suit: Suit) -> Unit) : DialogFragment() {
 
     private lateinit var binding: SuitChoiceFragmentBinding
-    private var suitChosen = Suit.HEARTS
+    private var suitChosen = Suit.CLUBS
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = SuitChoiceFragmentBinding.inflate(layoutInflater).apply {

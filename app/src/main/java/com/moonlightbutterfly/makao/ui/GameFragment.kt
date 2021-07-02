@@ -290,7 +290,7 @@ class GameFragment : Fragment() {
                 if (effect is RequireSuitEffect) {
                     binding.effect.setImageDrawable(imageProvider.provideSuit(effect.getSuit()))
                 } else if (effect is RequireRankEffect) {
-                    binding.effect.setImageDrawable(imageProvider.provideCardImage(Card(effect.getRank(), Suit.SPADES)))
+                    binding.effect.setImageDrawable(imageProvider.provideRank(effect.getRank()))
                 }
             }
         }
