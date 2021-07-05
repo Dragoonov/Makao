@@ -8,11 +8,11 @@ import com.moonlightbutterfly.makao.dataclasses.Player
 import com.moonlightbutterfly.makao.effect.*
 import com.moonlightbutterfly.makao.utils.CardPeeker
 
-class Game(playerNames: List<String>) {
+class Game private constructor(playerNames: List<String>, aiProvider: ((Card) -> Effect?) -> AI) {
 
     private val players = playerNames.map { Player(it, mutableListOf()) }
     private var currentPlayer = players[0]
-    private val ai = AI { getEffectForCard(it) }
+    private val ai = aiProvider { getEffectForCard(it) }
     private var boardState = BoardState()
     private var effectListener: ((Effect?) -> Unit)? = null
 
@@ -35,7 +35,7 @@ class Game(playerNames: List<String>) {
 
     fun getCurrentEffect() = boardState.effect
 
-    fun drawCard(playerName: String): List<Action> {
+    fun drawCard(playerName: String): Action {
         boardState.cardsTakenInRound += 1
         val player = players.first { it.name == playerName }
         val card = boardState.deck.removeLast()
@@ -43,7 +43,7 @@ class Game(playerNames: List<String>) {
             shuffle()
         }
         player.hand.add(card)
-        return listOf(DrawCardAction(player, card))
+        return DrawCardAction(player, card)
     }
 
     fun placeCardOnTop(playerName: String, card: Card, effect: Effect? = null) {
@@ -148,7 +148,10 @@ class Game(playerNames: List<String>) {
 
     private fun Card.isActionCard() = this.rank in arrayOf(Rank.TWO, Rank.THREE, Rank.FOUR, Rank.JACK, Rank.QUEEN, Rank.KING, Rank.ACE)
 
-    private companion object {
+    companion object {
+        fun create(playerNames: List<String>, aiProvider: ((Card) -> Effect?) -> AI): Game {
+            return Game(playerNames, aiProvider)
+        }
         private const val CARDS_DRAWN_FOR_THREE_CARD = 3
         private const val CARDS_DRAWN_FOR_TWO_CARD = 2
         private const val CARDS_DRAWN_FOR_KING_CARD = 5

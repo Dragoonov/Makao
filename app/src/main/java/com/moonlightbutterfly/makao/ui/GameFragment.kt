@@ -17,23 +17,29 @@ import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.transition.*
 import com.moonlightbutterfly.makao.*
 import com.moonlightbutterfly.makao.R
+import com.moonlightbutterfly.makao.ai.AI
 import com.moonlightbutterfly.makao.databinding.FragmentGameShownBinding
 import com.moonlightbutterfly.makao.dataclasses.Card
 import com.moonlightbutterfly.makao.dataclasses.CardWrapper
 import com.moonlightbutterfly.makao.effect.Effect
 import com.moonlightbutterfly.makao.effect.RequireRankEffect
 import com.moonlightbutterfly.makao.effect.RequireSuitEffect
+import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 import com.moonlightbutterfly.makao.utils.AnimationChainer
 import com.moonlightbutterfly.makao.utils.CardImageProvider
 import com.moonlightbutterfly.makao.utils.Utils
 
 class GameFragment : Fragment() {
 
-    private lateinit var gameViewModel: GameViewModel
+    private val gameViewModel by viewModels<GameViewModel> {
+        GameViewModelFactory(OptionsHighlighter.instance) { list -> Game.create(list) { AI(it) } }
+    }
     private lateinit var binding: FragmentGameShownBinding
     private val cards: MutableList<CardWrapper> = mutableListOf()
     private val johnCards: MutableList<CardWrapper> = mutableListOf()
@@ -112,8 +118,7 @@ class GameFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.v("On create view", "oncreateview")
-        gameViewModel = ViewModelProvider(this).get(GameViewModel::class.java).apply {
+        gameViewModel.apply {
             actionsToPerform.observe(viewLifecycleOwner) {
                 val animations = mutableListOf<() -> Animator>().apply {
                     addAll(getAnimationsForActions(it))

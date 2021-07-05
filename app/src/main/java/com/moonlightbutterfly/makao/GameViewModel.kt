@@ -8,14 +8,15 @@ import com.moonlightbutterfly.makao.dataclasses.CardWrapper
 import com.moonlightbutterfly.makao.effect.*
 import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 
-class GameViewModel : ViewModel() {
+class GameViewModel(
+    private val cardsHighlighter: OptionsHighlighter,
+    gameProvider: (list: List<String>) -> Game
+) : ViewModel() {
 
-    private val cardsHighlighter = OptionsHighlighter.instance
     private var effect: Effect? = null
-    private val game = Game(listOf(JOHN, ARTHUR, MAIN_PLAYER)).apply {
-        setOnEffectListener {
-            effect = it
-        }
+
+    private val game = gameProvider(listOf(ARTHUR, JOHN, MAIN_PLAYER)).apply {
+        setOnEffectListener { effect = it }
     }
 
     private val _actionsToPerform = MutableLiveData<List<Action>>()
@@ -40,7 +41,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun onDrawnCard() {
-        _actionsToPerform.postValue(game.drawCard(MAIN_PLAYER))
+        _actionsToPerform.postValue(listOf(game.drawCard(MAIN_PLAYER)))
     }
 
     fun onStartGame() {
