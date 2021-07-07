@@ -65,7 +65,7 @@ fun ImageView.moveAndScaleAndFlipAnimation(
     durationAnim: Long = 1000,
     targetDrawable: Drawable,
 ): Animator {
-    val animator = this.alignWithTopCardAnimation(card, durationAnim) as AnimatorSet
+    val animator = this.drawAnimation(source = this, target = card, duration = durationAnim) as AnimatorSet
     val flipX = PropertyValuesHolder.ofFloat("rotationX", 0f, 90f)
     val flipX2 = PropertyValuesHolder.ofFloat("rotationX", 90f, 180f)
     val flip1Anim = ObjectAnimator.ofPropertyValuesHolder(this, flipX).apply {
@@ -83,38 +83,25 @@ fun ImageView.moveAndScaleAndFlipAnimation(
     }
 }
 
-fun ImageView.alignWithTopCardAnimation(targetCard: ImageView, durationAnim: Long = 250): Animator {
-    val moveAnimation = moveAnimation(
-        targetX = targetCard.x + targetCard.width / 2 - this.width / 2,
-        targetY = targetCard.y + targetCard.height / 2 - this.height / 2,
-        durationAnim = durationAnim
-    )
-    val scaleAnimation = scaleAnimation(
-        targetX = targetCard.width.toFloat() / this.width,
-        targetY = targetCard.height.toFloat() / this.height,
-        durationAnim = durationAnim
-    )
-    return AnimatorSet().apply {
-        playTogether(moveAnimation, scaleAnimation)
-    }
-}
-
 fun ImageView.drawAnimation(
     source: ImageView,
     target: ImageView,
-    distance: Float = 0f
+    distance: Float = 0f,
+    duration: Long = 1000L
 ): Animator {
     val moveAnimation = moveAnimation(
         sourceX = source.x,
         targetX = target.x + target.width / 2 - source.width / 2 + distance,
         sourceY = source.y,
-        targetY = target.y + target.height / 2 - source.height / 2
+        targetY = target.y + target.height / 2 - source.height / 2,
+        durationAnim = duration
     )
     val scaleAnimation = scaleAnimation(
         sourceX = source.scaleX,
         targetX = target.width.toFloat() / source.width,
         sourceY = source.scaleY,
-        targetY = target.height.toFloat() / source.height
+        targetY = target.height.toFloat() / source.height,
+        durationAnim = duration
     )
     return AnimatorSet().apply {
         playTogether(moveAnimation, scaleAnimation)

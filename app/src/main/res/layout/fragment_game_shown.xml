@@ -22,7 +22,7 @@
             android:layout_height="72dp"
             android:src="@drawable/two_hearts"
             android:translationY="-60dp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.05"
@@ -36,7 +36,7 @@
             android:layout_height="72dp"
             android:src="@drawable/two_spades"
             android:translationY="-60dp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.95"
@@ -84,7 +84,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.35"
             android:translationY="275dp"
-            android:visibility="visible"
+            android:visibility="invisible"
             android:translationZ="11dp"/>
 
         <androidx.appcompat.widget.AppCompatImageView

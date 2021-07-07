@@ -95,7 +95,7 @@ class GameFragment : Fragment() {
                                         checkForGameEnd()
                                     }
                                 }
-                                it.alignWithTopCardAnimation(binding.topCard).apply {
+                                it.drawAnimation(source = it, target = binding.topCard, duration = 250).apply {
                                     doOnEnd { _ -> removeCardFromBoard(cards, binding.cardsAnchor, it, true) }
                                 }.start()
                             } else {
@@ -312,7 +312,10 @@ class GameFragment : Fragment() {
     private fun hide(): Animator {
         val cardsAnimations = mutableListOf<Animator>()
         cardsAnimations.addAll(cards.map { it.imageView.hideCard() })
-        cardsAnimations.addAll((johnCards + arthurCards).map { it.imageView.enemyCardShow() })
+        cardsAnimations.addAll(
+            (johnCards + arthurCards).map { it.imageView.enemyCardShow() }
+                    + binding.arthurAnchor.enemyCardShow()
+                    + binding.johnAnchor.enemyCardShow())
         return AnimatorSet().apply {
             playTogether(cardsAnimations)
             doOnStart { updateConstraints(R.layout.fragment_game_hidden) }
@@ -322,7 +325,10 @@ class GameFragment : Fragment() {
     private fun show(): Animator {
         val cardsAnimations = mutableListOf<Animator>()
         cardsAnimations.addAll(cards.map { it.imageView.showCard() })
-        cardsAnimations.addAll((johnCards + arthurCards).map { it.imageView.enemyCardHide() })
+        cardsAnimations.addAll(
+            (johnCards + arthurCards).map { it.imageView.enemyCardHide() }
+                    + binding.arthurAnchor.enemyCardHide()
+                    + binding.johnAnchor.enemyCardHide())
         return AnimatorSet().apply {
             playTogether(cardsAnimations)
             doOnStart { updateConstraints(R.layout.fragment_game_shown) }

@@ -24,13 +24,13 @@
             android:layout_height="72dp"
             android:src="@drawable/two_hearts"
             android:translationY="-60dp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.05"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.12" />
+            app:layout_constraintVertical_bias="0.0" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/arthurAnchor"
@@ -38,13 +38,13 @@
             android:layout_height="72dp"
             android:src="@drawable/two_spades"
             android:translationY="-60dp"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.95"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.12" />
+            app:layout_constraintVertical_bias="0.0" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/topCard"
@@ -86,7 +86,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
             android:translationY="275dp"
-            android:visibility="visible"
+            android:visibility="invisible"
             android:translationZ="11dp"/>
 
         <androidx.appcompat.widget.AppCompatImageView
