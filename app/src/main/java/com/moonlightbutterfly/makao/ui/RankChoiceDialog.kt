@@ -24,11 +24,14 @@ class RankChoiceDialog(private val listener: (rank: Rank) -> Unit) : DialogFragm
         }
         return AlertDialog.Builder(requireContext())
             .setMessage(getString(R.string.rank_choice))
+            .setCancelable(false)
             .setView(binding.root)
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
                 listener(rankChosen)
             }
-            .create()
+            .create().apply {
+                setCanceledOnTouchOutside(false)
+            }
     }
 
     fun setRank(view:View, rank: Rank) {

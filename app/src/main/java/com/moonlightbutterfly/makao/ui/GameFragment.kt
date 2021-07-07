@@ -90,10 +90,7 @@ class GameFragment : Fragment() {
                                         childFragmentManager,
                                         RankChoiceDialog.TAG
                                     )
-                                    else -> {
-                                        gameViewModel.onCardPlacedOnTop(cardWrapper)
-                                        checkForGameEnd()
-                                    }
+                                    else -> gameViewModel.onCardPlacedOnTop(cardWrapper)
                                 }
                                 it.drawAnimation(source = it, target = binding.topCard, duration = 250).apply {
                                     doOnEnd { _ -> removeCardFromBoard(cards, binding.cardsAnchor, it, true) }
@@ -169,6 +166,7 @@ class GameFragment : Fragment() {
                 }.withEndAction {
                     onRoundFinished()
                 }.start()
+                checkForGameEnd()
             }
             quit.setOnClickListener {
                 activity?.supportFragmentManager?.commit {

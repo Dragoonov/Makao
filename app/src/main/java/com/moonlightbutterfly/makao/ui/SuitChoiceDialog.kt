@@ -25,11 +25,14 @@ class SuitChoiceDialog(private val listener: (suit: Suit) -> Unit) : DialogFragm
 
         return AlertDialog.Builder(requireContext())
             .setMessage(getString(R.string.suit_choice))
+            .setCancelable(false)
             .setView(binding.root)
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
                 listener(suitChosen)
             }
-            .create()
+            .create().apply {
+                setCanceledOnTouchOutside(false)
+            }
     }
 
     fun setSuit(view: View, suit: Suit) {

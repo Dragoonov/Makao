@@ -61,10 +61,10 @@ class Game (playerNames: List<String>, aiProvider: ((Card) -> Effect?) -> AI) {
             onTurnEnd()
             return emptyList()
         }
+        onTurnEnd()
         val output = ai.getActionsForPlayer(currentPlayer.clone(), boardState.clone())
         updateStateFromAIBundle(output)
         currentPlayer = players[(players.indexOf(currentPlayer) + 1) % players.size]
-        onTurnEnd()
         return output.actions
     }
 
