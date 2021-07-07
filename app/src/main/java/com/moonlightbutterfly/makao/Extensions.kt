@@ -102,50 +102,11 @@ fun ImageView.alignWithTopCardAnimation(targetCard: ImageView, durationAnim: Lon
 fun ImageView.drawAnimation(
     source: ImageView,
     target: ImageView,
-    distance: Float,
+    distance: Float = 0f
 ): Animator {
     val moveAnimation = moveAnimation(
         sourceX = source.x,
-        sourceY = source.y,
-        targetX = target.x + distance,
-        targetY = target.y
-    )
-    val scaleAnimation = scaleAnimation(
-        sourceX = source.width.toFloat() / target.width,
-        sourceY = source.height.toFloat() / target.height,
-        targetX = 1f,
-        targetY = 1f
-    )
-    return AnimatorSet().apply {
-        playTogether(moveAnimation, scaleAnimation)
-    }
-}
-
-fun ImageView.move(value: Float, operation: (Float, Float) -> Float): Animator {
-    val source = y
-    val target = operation(y, Utils.dpToPixel(value, context))
-    return this.translateY(source, target)
-}
-
-fun ImageView.translateY(source: Float, target: Float, onEnd: () -> Unit = {}): Animator {
-    val translationY =
-        PropertyValuesHolder.ofFloat("y", source, target)
-    val moveAnim = ObjectAnimator.ofPropertyValuesHolder(this, translationY).apply {
-        duration = 1000
-        doOnEnd { onEnd() }
-    }
-    return AnimatorSet().apply {
-        play(moveAnim)
-    }
-}
-
-fun ImageView.initializeTopCard(
-    source: ImageView,
-    target: ImageView,
-): Animator {
-    val moveAnimation = moveAnimation(
-        sourceX = source.x,
-        targetX = target.x + target.width / 2 - source.width / 2,
+        targetX = target.x + target.width / 2 - source.width / 2 + distance,
         sourceY = source.y,
         targetY = target.y + target.height / 2 - source.height / 2
     )

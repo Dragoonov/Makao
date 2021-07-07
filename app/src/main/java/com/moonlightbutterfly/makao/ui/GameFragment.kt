@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
@@ -18,8 +17,6 @@ import androidx.core.animation.doOnStart
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.transition.*
 import com.moonlightbutterfly.makao.*
 import com.moonlightbutterfly.makao.R
@@ -190,7 +187,7 @@ class GameFragment : Fragment() {
     private fun johnDrawCard(card: Card) = enemyDrawCard(card, binding.johnAnchor, enemiesCardsDistance, johnCards)
 
     private fun enemyDrawCard(card: Card, anchor: AppCompatImageView, distance: Float, cards: MutableList<CardWrapper>): Animator {
-        val newView = getCardView(card, true)
+        val newView = getCardView(card, true, binding.deck.layoutParams)
         binding.layout.addView(newView)
         cards.add(CardWrapper(card, newView))
         return newView.drawAnimation(binding.deck, anchor, distance * (cards.size - 1))
@@ -333,12 +330,13 @@ class GameFragment : Fragment() {
     }
 
     private fun reorderHand(
-        initialPosition: Float,
+        anchor: AppCompatImageView,
         distance: Float,
         cards: List<CardWrapper>,
         duration: Long = 250
     ) {
         cards.map { it.imageView }.forEachIndexed { index, imageView ->
+            val initialPosition = anchor.x + (anchor.width / 2 - imageView.width / 2)
             imageView.moveAnimation(targetX = initialPosition + index * distance, durationAnim = duration, ignoreY = true).start()
         }
     }
@@ -365,7 +363,7 @@ class GameFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun drawCard(card: Card): Animator {
-        val newView = getCardView(card)
+        val newView = getCardView(card, params = binding.deck.layoutParams)
         binding.layout.addView(newView)
         cards.add(CardWrapper(card, newView))
         newView.setOnTouchListener(listener())
@@ -378,7 +376,7 @@ class GameFragment : Fragment() {
                 val distance = cardsDistance
                 recalculateCardsDistance()
                 if (distance != cardsDistance) {
-                    reorderHand(binding.cardsAnchor.x, cardsDistance, cards)
+                    reorderHand(binding.cardsAnchor, cardsDistance, cards)
                 }
             }
         }
@@ -387,7 +385,7 @@ class GameFragment : Fragment() {
     private fun initializeCard(card: Card): Animator {
         val cardView = getCardView(card, params = binding.deck.layoutParams)
         binding.layout.addView(cardView)
-        return cardView.initializeTopCard(
+        return cardView.drawAnimation(
             binding.deck,
             binding.topCard
         ).apply {
@@ -430,13 +428,13 @@ class GameFragment : Fragment() {
             recalculateCardsDistance()
             distance = cardsDistance
         }
-        reorderHand(anchor.x, distance, cards)
+        reorderHand(anchor, distance, cards)
     }
 
-    private fun AppCompatImageView.enemyCardHide() = this.move(70f) { a, b -> a - b }
-    private fun AppCompatImageView.enemyCardShow() = this.move(70f) { a, b -> a + b }
-    private fun AppCompatImageView.hideCard() = this.move(382f) { a, b -> a + b }
-    private fun AppCompatImageView.showCard() = this.move(382f) { a, b -> a - b }
+    private fun AppCompatImageView.enemyCardHide() = this.moveAnimation(ignoreX = true, sourceY = y, targetY = y - Utils.dpToPixel(70f, context))
+    private fun AppCompatImageView.enemyCardShow() = this.moveAnimation(ignoreX = true, sourceY = y, targetY = y + Utils.dpToPixel(70f, context))
+    private fun AppCompatImageView.hideCard() = this.moveAnimation(ignoreX = true, sourceY = y, targetY = y + Utils.dpToPixel(382f, context))
+    private fun AppCompatImageView.showCard() = this.moveAnimation(ignoreX = true, sourceY = y, targetY = y - Utils.dpToPixel(382f, context))
     private fun Card.isAce() = this.rank == Rank.ACE
     private fun Card.isJack() = this.rank == Rank.JACK
 

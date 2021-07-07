@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -26,7 +26,7 @@
             app:layout_constraintEnd_toStartOf="@+id/diamonds"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ace_clubs"
+            app:srcCompat="@drawable/card_clubs"
             android:tint="@color/highlight" />
 
         <androidx.appcompat.widget.AppCompatImageView
@@ -41,7 +41,7 @@
             app:layout_constraintEnd_toStartOf="@+id/hearts"
             app:layout_constraintStart_toEndOf="@+id/clubs"
             app:layout_constraintTop_toTopOf="@+id/clubs"
-            app:srcCompat="@drawable/ace_diamonds" />
+            app:srcCompat="@drawable/card_diamond" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/hearts"
@@ -55,7 +55,7 @@
             app:layout_constraintEnd_toStartOf="@+id/spades"
             app:layout_constraintStart_toEndOf="@+id/diamonds"
             app:layout_constraintTop_toTopOf="@+id/diamonds"
-            app:srcCompat="@drawable/ace_hearts" />
+            app:srcCompat="@drawable/card_hearts" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/spades"
@@ -69,6 +69,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/hearts"
             app:layout_constraintTop_toTopOf="@+id/hearts"
-            app:srcCompat="@drawable/ace_spades" />
+            app:srcCompat="@drawable/card_spade" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -15,7 +15,7 @@ class GameViewModel(
 
     private var effect: Effect? = null
 
-    private val game = gameProvider(listOf(ARTHUR, JOHN, MAIN_PLAYER)).apply {
+    private val game = gameProvider(listOf(JOHN, ARTHUR, MAIN_PLAYER)).apply {
         setOnEffectListener { effect = it }
     }
 
