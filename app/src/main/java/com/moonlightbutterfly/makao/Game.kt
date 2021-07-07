@@ -8,7 +8,7 @@ import com.moonlightbutterfly.makao.dataclasses.Player
 import com.moonlightbutterfly.makao.effect.*
 import com.moonlightbutterfly.makao.utils.CardPeeker
 
-class Game private constructor(playerNames: List<String>, aiProvider: ((Card) -> Effect?) -> AI) {
+class Game (playerNames: List<String>, aiProvider: ((Card) -> Effect?) -> AI) {
 
     private val players = playerNames.map { Player(it, mutableListOf()) }
     private var currentPlayer = players[0]
@@ -149,9 +149,6 @@ class Game private constructor(playerNames: List<String>, aiProvider: ((Card) ->
     private fun Card.isActionCard() = this.rank in arrayOf(Rank.TWO, Rank.THREE, Rank.FOUR, Rank.JACK, Rank.QUEEN, Rank.KING, Rank.ACE)
 
     companion object {
-        fun create(playerNames: List<String>, aiProvider: ((Card) -> Effect?) -> AI): Game {
-            return Game(playerNames, aiProvider)
-        }
         private const val CARDS_DRAWN_FOR_THREE_CARD = 3
         private const val CARDS_DRAWN_FOR_TWO_CARD = 2
         private const val CARDS_DRAWN_FOR_KING_CARD = 5

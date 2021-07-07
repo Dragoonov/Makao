@@ -72,8 +72,8 @@ class OptionsHighlighter private constructor() {
                         it.rank == topCard.rank
                     } else {
                         val isDrawingCard = it.rank in listOf(Rank.TWO, Rank.THREE, Rank.KING)
-                        val isNotNeutralKing = it in listOf(CardPeeker.KING_OF_HEARTS, CardPeeker.KING_OF_SPADES)
-                        (isDrawingCard && it.suit == topCard.suit && isNotNeutralKing) || it == CardPeeker.QUEEN_OF_SPADES
+                        val isNotNeutralKing = it !in listOf(CardPeeker.KING_OF_CLUBS, CardPeeker.KING_OF_DIAMONDS)
+                        (isDrawingCard && (it.suit == topCard.suit || it.rank == topCard.rank) && isNotNeutralKing) || it == CardPeeker.QUEEN_OF_SPADES
                     }
                 }
             },
@@ -123,7 +123,7 @@ class OptionsHighlighter private constructor() {
 
     private fun provideCardsForWaitTurnEffect(hand: List<Card>, cardsTakenInRound: Int, cardWasPlaced: Boolean): HighlightInfo {
         return HighlightInfo(
-            cardsToPlay = hand.filter { it.rank == Rank.FOUR },
+            cardsToPlay = hand.filter { it.rank == Rank.FOUR || it == CardPeeker.QUEEN_OF_SPADES},
             drawPossible = (cardWasPlaced or (cardsTakenInRound >= ONE)).not(),
             finishRoundPossible = (cardsTakenInRound >= ONE) or cardWasPlaced
         )

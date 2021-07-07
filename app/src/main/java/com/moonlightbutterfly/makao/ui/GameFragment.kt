@@ -38,7 +38,7 @@ import com.moonlightbutterfly.makao.utils.Utils
 class GameFragment : Fragment() {
 
     private val gameViewModel by viewModels<GameViewModel> {
-        GameViewModelFactory(OptionsHighlighter.instance) { list -> Game.create(list) { AI(it) } }
+        GameViewModelFactory(OptionsHighlighter.instance) { list -> Game(list) { AI(it) } }
     }
     private lateinit var binding: FragmentGameShownBinding
     private val cards: MutableList<CardWrapper> = mutableListOf()

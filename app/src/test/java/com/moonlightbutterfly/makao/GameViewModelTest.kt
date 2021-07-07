@@ -1,7 +1,6 @@
 package com.moonlightbutterfly.makao
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
 import com.moonlightbutterfly.makao.dataclasses.Card
 import com.moonlightbutterfly.makao.dataclasses.CardWrapper
 import com.moonlightbutterfly.makao.dataclasses.HighlightInfo
@@ -10,7 +9,6 @@ import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.After
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -41,40 +39,18 @@ class GameViewModelTest {
         every { drawCard(any()) } returns action
         every { startGame() } returns listOf(action, action2)
         every { nextTurn(any()) } returns listOf(action, action2)
-//        every { getPlayerHand(any()) } returns mockk()
-//        every { getCardWasPlacedInRound() } returns mockk()
-//        every { getCardsTakenInRound() } returns 0
-//        every { getTopCard() } returns mockk()
-//        every { getCurrentEffect() } returns mockk()
     }
 
     private lateinit var viewModel: GameViewModel
-
-    private val actionsObserver = Observer<List<Action>> {}
-    private val cardsObserver = Observer<List<Card>> {}
-    private val drawPossiblesObserver = Observer<Boolean> {}
-    private val canFinishObserver = Observer<Boolean> {}
 
     @Before
     fun setup() {
         every { gameProvider(any()) } returns game
         viewModel = GameViewModel(optionsHighlighter, gameProvider)
-        viewModel.actionsToPerform.observeForever(actionsObserver)
-        viewModel.possibleMoves.observeForever(cardsObserver)
-        viewModel.drawPossible.observeForever(drawPossiblesObserver)
-        viewModel.finishRoundPossible.observeForever(canFinishObserver)
-    }
-
-    @After
-    fun tearDown() {
-        viewModel.actionsToPerform.removeObserver(actionsObserver)
-        viewModel.possibleMoves.removeObserver(cardsObserver)
-        viewModel.drawPossible.removeObserver(drawPossiblesObserver)
-        viewModel.finishRoundPossible.removeObserver(canFinishObserver)
     }
 
     @Test
-    fun onAnimationsEnded() {
+    fun `should calculate proper values on animation ended`() {
         // GIVEN WHEN
         viewModel.onAnimationsEnded()
         // THEN
@@ -84,7 +60,7 @@ class GameViewModelTest {
     }
 
     @Test
-    fun onCardPlacedOnTop() {
+    fun `should calculate proper values on card placed on top`() {
         // GIVEN
         val card = mockk<Card>()
         val effect = mockk<Effect>()
@@ -101,28 +77,34 @@ class GameViewModelTest {
     }
 
     @Test
-    fun onDrawnCard() {
+    fun `should return one action on drawn card`() {
         // GIVEN WHEN
         viewModel.onDrawnCard()
         // THEN
-        assertEquals(1, viewModel.actionsToPerform.value?.size)
+        assertEquals(ONE, viewModel.actionsToPerform.value?.size)
         assertEquals(action, viewModel.actionsToPerform.value?.get(0))
     }
 
     @Test
-    fun onStartGame() {
+    fun `should return two mocked actions on start game`() {
         // GIVEN WHEN
         viewModel.onStartGame()
         // THEN
-        assertEquals(2, viewModel.actionsToPerform.value?.size)
+        assertEquals(TWO, viewModel.actionsToPerform.value?.size)
         assertEquals(listOf(action, action2), viewModel.actionsToPerform.value)
     }
 
     @Test
-    fun onTurnFinished() {
+    fun `should return proper amount of actions on turn finished`() {
         // GIVEN WHEN
         viewModel.onTurnFinished()
         // THEN
-        assertEquals(8, viewModel.actionsToPerform.value?.size)
+        assertEquals(EIGHT, viewModel.actionsToPerform.value?.size)
+    }
+
+    private companion object {
+        private const val EIGHT = 8
+        private const val ONE = 1
+        private const val TWO = 2
     }
 }

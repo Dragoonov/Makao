@@ -9,5 +9,7 @@ class CardPeeker {
         val QUEEN_OF_SPADES = Card(Rank.QUEEN, Suit.SPADES)
         val KING_OF_SPADES = Card(Rank.KING, Suit.SPADES)
         val KING_OF_HEARTS = Card(Rank.KING, Suit.HEARTS)
+        val KING_OF_CLUBS = Card(Rank.KING, Suit.CLUBS)
+        val KING_OF_DIAMONDS = Card(Rank.KING, Suit.DIAMONDS)
     }
 }

@@ -9,11 +9,10 @@ import com.moonlightbutterfly.makao.effect.RequireRankEffect
 import com.moonlightbutterfly.makao.effect.RequireSuitEffect
 import com.moonlightbutterfly.makao.highlighting.OptionsHighlighter
 
-class AI(private val effectProvider: (Card) -> Effect?) {
+class AI(private val effectProvider: (Card) -> Effect?, private val highlighter: OptionsHighlighter = OptionsHighlighter.instance) {
 
-    private val highlighter = OptionsHighlighter.instance
-    var cardsTakenInRound = 0
-    var cardPlacedInRound = false
+    private var cardsTakenInRound = 0
+    private var cardPlacedInRound = false
 
     fun getActionsForPlayer(player: Player, boardState: BoardState): AIOutput {
         val actions = mutableListOf<Action>()
